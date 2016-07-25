@@ -1,0 +1,93 @@
+---
+title: "UW Summer Institutes - Introduction to Metagenomic Data Analysis - Lab 3"
+output: html_notebook
+---
+
+# Setup
+
+```{r load_packages}
+library(phyloseq)
+
+library(ggplot2)
+library(ggthemes)
+library(stringr)
+library(tidyr)
+library(dplyr)
+```
+
+```{r load_data}
+load("../labs/Lab-03-Mixture_Models/example-data.RData")
+```
+
+```{r inspect_closedps}
+str(closedps) # 73 taxa, 9 samples
+```
+
+```{r inspect_sample_data}
+str(sample_data(closedps))
+```
+
+
+# Differential abundance
+ 
+## `phyloseq::mt`
+
+```{r phyloseq_mt}
+res_phyloseq_mt <- phyloseq::mt(closedps, "Treatment")
+```
+
+## `DESeq2`
+
+### Convert `phyloseq` to `DESeq2`
+
+```{r ps_deseq}
+library(DESeq2)
+ps_deseq <- phyloseq_to_deseq2(closedps, ~ Treatment)
+```
+
+### Fit model with `DESeq()`
+
+```{r do_deseq}
+ps_deseq <- DESeq(ps_deseq, test = "Wald", fitType = "parametric")
+```
+
+### Explore `DESeq2` results
+
+```{r inspect_deseq_results}
+res_deseq <- DESeq2::results(ps_deseq)
+str(res_deseq)
+```
+
+```{r deseq_df}
+alpha <- 0.05
+deseq_df <- res_deseq %>% 
+    as.data.frame() %>% 
+    bind_cols(tax_table(closedps)[rownames(res_deseq), ] %>% 
+                  as.data.frame())
+
+deseq_df <- deseq_df %>%  
+    replace_na(list(padj = 1.0))
+```
+
+```{r plot_deseq_results}
+deseq_df %>% 
+    mutate(is_sig = padj < alpha) %>% 
+    ggplot(aes(x = log2FoldChange, y = -log10(padj))) +
+    geom_point(aes(colour = is_sig), alpha = 0.5) +
+    geom_hline(yintercept = -log10(alpha)) +
+    scale_color_colorblind()
+```
+
+```{r deseq_sig_df}
+deseq_sig_df <- deseq_df %>% 
+    filter(padj < alpha)
+```
+
+```{r plot_deseq_sig_results}
+deseq_sig_df %>% 
+    ggplot(aes())
+```
+
+
+
+

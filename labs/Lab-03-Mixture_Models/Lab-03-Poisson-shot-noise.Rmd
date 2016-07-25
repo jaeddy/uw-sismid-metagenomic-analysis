@@ -1,0 +1,325 @@
+---
+title: "Lab 03: Shot Noise Poisson Simulation (for intuition)"
+author: SISMID 2016 Module 14
+date: "`r date()`"
+output: 
+  html_document: 
+    fig_caption: yes
+    number_sections: yes
+    toc: yes
+    toc_depth: 2
+    toc_float: true
+---
+
+
+&nbsp;
+
+---
+
+# Load packages
+
+```{r loadpackages}
+library("ggplot2"); packageVersion("ggplot2")
+theme_set(theme_bw())
+library("plyr"); packageVersion("plyr")
+library("data.table"); packageVersion("data.table")
+set.seed(711L)
+```
+
+
+&nbsp;
+
+---
+
+# Define simple microbiome
+
+Let's define an imaginary and simple vector of proportions of bacterial taxa
+in a community.
+
+```{r}
+OTUproportions = c(0.3, 0.2, 0.1,
+                   rep(0.05, 5), 
+                   rep(0.025, 6), 
+                   rep(0.001, 6), 
+                   rep(0.0001, 6))
+names(OTUproportions) <- LETTERS[1:length(OTUproportions)]
+OTUproportions
+sum(OTUproportions)
+# Plot it to be clear.
+spdf = data.frame(proportion=OTUproportions, Taxa=names(OTUproportions))
+p = ggplot(spdf, aes(Taxa, proportion)) + geom_bar(stat="identity") 
+p + ggtitle("The 'true' Taxa proportions")
+```
+
+Now sample from these true proportions, and plot the uncertainty. This uses the `sample` function in R.
+
+```{r simulate}
+sim1 = sample(x=names(OTUproportions), size=100, replace=TRUE, prob=OTUproportions)
+sim1
+sim1df = data.frame(table(sim1))
+sim1df
+sim1df$proportion <- sim1df$Freq/sum(sim1df$Freq)
+colnames(sim1df)[1] <- "Taxa"
+# Add simulated proportions to the plot of the true proportions.
+title = "One realization of multinomial sampling process"
+p + geom_point(data=sim1df, color="blue", size=6) +
+  ggtitle(title)
+```
+
+
+&nbsp;
+
+---
+
+# Define simulation
+
+Define and test a function that simulates from this
+
+```{r}
+simulate_community = function(props, size){
+  # props = OTUproportions
+  # size = 100
+  simi = sample(x=names(props), size=size, replace=TRUE, prob=props)
+  simidf = data.table(table(simi))
+  simidf[, proportion := N / sum(N, na.rm = TRUE)]
+  setnames(simidf, "simi", "Taxa")
+  return(simidf)
+}
+# Test the function
+show(simulate_community(OTUproportions, 200))
+# Repeat twice, store as list
+replicate(2, simulate_community(OTUproportions, 100), simplify = FALSE)
+```
+
+
+&nbsp;
+
+---
+
+# Repeat Simulation
+
+Now repeat the simulated Taxa sampling 
+many times at different *library sizes*.
+
+```{r}
+N = 300
+LibrarySizes = c(100, 2000, 30000, 400000)
+bigdt = rbindlist(lapply(X = LibrarySizes, FUN = function(libsz){
+  listi = replicate(N, simulate_community(OTUproportions, libsz), simplify=FALSE)
+  dti = rbindlist(listi)
+  dti[, LibrarySize := as.character(libsz)]
+  return(dti)
+}))
+```
+
+
+&nbsp;
+
+---
+
+# Graphic Summaries
+
+## Scatter plot of individual results
+
+```{r}
+title = "Accuracy of Individual Simulations"
+p + geom_point(aes(color=LibrarySize, fill=LibrarySize), data=bigdt,
+               position=position_jitterdodge(), size=1) + 
+  ggtitle(title)
+title = "Accuracy of Aggregate Simulations (boxplot)"
+p + geom_boxplot(aes(fill=LibrarySize),
+                 data=bigdt, 
+                 position="dodge") +
+  ggtitle(title)
+```
+
+&nbsp;
+
+## Residuals v. Counts
+
+```{r}
+bigdt[, TrueProportion := spdf[Taxa, "proportion"]]
+bigdt[, Residual := proportion - TrueProportion]
+bigdt[, Error := abs(Residual)]
+bigdt[, StdErr := Residual / proportion]
+```
+
+```{r}
+ggplot(bigdt, aes(x = N,
+                  y = Residual,
+                  color = factor(TrueProportion),
+                  shape = LibrarySize)) + 
+  geom_point(size = 2, alpha = 0.5) + 
+  scale_x_log10() + 
+  annotation_logticks(sides = "b") +
+  ggtitle("Residual v. Absolute Count")
+```
+
+
+&nbsp;
+
+## Variance v. Counts
+
+Graphically summarize variance, standard deviation, and error.
+
+First prepare data for plotting
+
+```{r}
+# Summarize by trial and Taxa
+bigdt2 = ddply(bigdt, c("LibrarySize", "Taxa"), function(x){
+  data.frame(Variance = var(x$N),
+             standardDeviation = sd(x$N),
+             meanCount = mean(x$N),
+             meanProp = mean(x$proportion),
+             L = as.integer(x$LibrarySize[1])
+             )
+})
+bigdt2 <- data.table(bigdt2)
+bigdt2[, TrueProportion := spdf[Taxa, "proportion"]]
+bigdt2[, cv := Variance / as.numeric(LibrarySize)]
+```
+
+Define plots
+
+```{r}
+# Plots
+title = "Accuracy and Library Size"
+p + geom_boxplot(aes(fill=LibrarySize), data=bigdt, position="dodge") +
+  geom_errorbar(data=bigdt2, position="dodge",
+                aes(x=Taxa, y=NULL, colour=LibrarySize,
+                    ymax=meanProp+standardDeviation/L,
+                    ymin=meanProp-standardDeviation/L)) + 
+  ggtitle(title)
+
+title = "Observed Variance versus Observed Mean Counts"
+ggplot(data = bigdt2, 
+       mapping = aes(x = meanCount,
+                     y = Variance,
+                     colour=LibrarySize)) + 
+  geom_point(size=5, alpha=0.5) + 
+  geom_abline(intercept = 0, slope = 1) + 
+  scale_y_log10() + 
+  scale_x_log10() + 
+  annotation_logticks(sides = "lb") +
+  ggtitle(title)
+
+title = "Observed Variance versus Expected Variance (Poisson)"
+ggplot(bigdt2, aes(L*TrueProportion, Variance, color=LibrarySize)) + geom_point(size=5, alpha=0.5) + 
+  geom_abline(intercept = 0, slope = 1) + 
+  scale_y_log10() + 
+  scale_x_log10() + 
+  annotation_logticks(sides = "lb") +
+  xlab("Expected Variance [counts^2]") + 
+  ylab("Estimated Variance [counts^2]") +
+  ggtitle(title)
+```
+
+&nbsp;
+
+## Error in Proportion Estimate v. Counts
+
+Notice how proportion on its own 
+is a very bad predictor of the uncertainty/error!
+
+```{r}
+title = "Weak error dependency on proportion value"
+ggplot(data = bigdt2, 
+       mapping = aes(x = TrueProportion,
+                     y = abs(TrueProportion - meanCount/L) / TrueProportion,
+                     color = LibrarySize)) + 
+  geom_point(size=5, alpha=0.5) + 
+  scale_y_log10() + 
+  scale_x_log10() + 
+  annotation_logticks(sides = "lb") +
+  xlab("Observed Proportion") + 
+  ylab("Error [Proportion]") +
+  ggtitle(title)
+```
+
+
+```{r}
+title = "Weak error dependency on proportion"
+ggplot(data = bigdt, 
+       mapping = aes(x = proportion, 
+                     y = log2(proportion / TrueProportion), 
+                     colour = LibrarySize)) + 
+  geom_hline(yintercept = 0, size = 0.25) +
+  geom_point(alpha = 0.5) +
+  scale_x_log10() +
+  ylab("Log2(Observed / Truth)") +
+  annotation_logticks(sides = "b") +
+  ggtitle(title)
+```
+
+
+Meanwhile the uncertainty is actually 
+highly structured with respect to counts
+(it is Poisson after all).
+
+```{r}
+title = "Error strongly dependent on count"
+ggplot(data = bigdt, 
+       # mapping = aes(N, StdErr, colour = LibrarySize)) + 
+       mapping = aes(N, log2(proportion / TrueProportion), colour = LibrarySize)) + 
+  geom_hline(yintercept = 0, size = 0.25) +
+  geom_point(alpha = 0.5) +
+  ylab("Log2(Observed / Truth)") +
+  xlab("Count") +
+  scale_x_log10() +
+  annotation_logticks(sides = "b") +
+  ggtitle(title)
+```
+
+```{r}
+title = "Error strongly dependent on count"
+ggplot(data = bigdt2, 
+       mapping = aes(x = meanCount,
+                     y = abs(TrueProportion - meanCount/L) / TrueProportion,
+                     color=LibrarySize)) + 
+  geom_point(size=5, alpha=0.5) + 
+  scale_y_log10() + 
+  scale_x_log10() + 
+  annotation_logticks(sides = "lb") +
+  xlab("Mean Count") + 
+  ylab("Error [Proportion]") +
+  ggtitle(title)
+```
+
+
+```{r}
+title = "Variance in Proportion Estimate v. Observed Mean Counts"
+ggplot(data = bigdt[, .(meanCount = mean(N),
+                        VarProp = var(proportion)), 
+                    by = .(LibrarySize, Taxa)], 
+       mapping = aes(meanCount, VarProp, colour=LibrarySize)) + 
+  geom_point(size=5, alpha=0.5) + 
+  # geom_abline(intercept = 0, slope = 1) + 
+  scale_y_log10() + 
+  scale_x_log10() + 
+  annotation_logticks(sides = "lb") +
+  ggtitle(title)
+```
+
+
+---
+
+&nbsp;
+
+
+# Conclusion
+
+The uncertainty due to sampling is actually 
+highly structured with respect to counts,
+following the Poisson distribution.
+For intuition, real experiments have shown
+that technical replicates
+(different sequencing runs of the same prepared sample)
+are also well described by the Poisson.
+It is clear from this simulation that information 
+represented by the count of each taxa in each sample
+is highly predictive of the uncertainty 
+in the corresponding proportion.
+Converting to proportions early 
+and ignoring the discrete counts is perilous,
+especially at low values (e.g. rare taxa).
+

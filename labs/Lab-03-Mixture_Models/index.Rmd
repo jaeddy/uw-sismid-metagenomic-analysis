@@ -1,0 +1,35 @@
+---
+title: "Lab 03: Mixture Models for efficient differential abundance multiple-testing"
+author: SISMID 2016 Module 14
+date: "`r date()`"
+---
+
+
+
+
+&nbsp;
+
+---
+
+# Motivation
+
+In many cases it is useful to test for differential abundance
+of sequences/taxa between two (or more) groups of microbiome samples.
+This is inherently a multiple comparisons/testing scenario,
+and so the same corrections for multiple testing that we learned in the previous section apply here. 
+Many of the workflows will perform this correction by default.
+
+
+
+&nbsp;
+
+---
+
+# Goals of this Lab
+
+The goal of this lab is to practice executing a few different workflows
+for differential abundance multiple testing (DESeq2, edgeR, metagenomeSeq),
+and combining their output into a single graphic (ggplot2, gridExtra).
+
+
+
