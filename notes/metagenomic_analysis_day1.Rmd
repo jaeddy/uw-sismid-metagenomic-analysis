@@ -1,0 +1,360 @@
+---
+title: "UW Summer Institutes - Introduction to Metagenomic Data Analysis - Day 1"
+output: html_notebook
+---
+
+Instructors: Alex (USC), Paul/Joey (Whole Biome)
+
+# Session 1
+
+## Introduction: Metagenomics in Biology and Medicine
+
+### What is a microbiome?
+
++ totality of microbes in a defined environment, especially their genomes and interactions with each other and surrounding envirionment
+
+### What are microbes?
+
+### Map of diversity
+
++ NIH Human Microbiome Project (map)
+
+### We are more microbes than we are humans?
+
++ Number of bacterial cells similar to number of human cells
++ ~1000 species in human gut
++ Much greater diversity in genes and variants among bacterial communities
+
+### Mechanisms for host-microbe interactions
+
++ With each other
++ With the host
++ With the environment
+
+
+### Mechanisms for host-microbe interactions
+
++ Differential metabolic gene expression in diseased periodontal microbiome. Peter Jorth et al. mBio 2014
+
+### Understanding the role of microbiome in human disease, through Koch's postulates
+
++ K's postulates:
++ Substitute microbial community for microorganism
++ Culturing microbiomes? Genome Res. 2009
+
+### Discovery of culture independent techniques
+
+### Microbial community identification using targeted sequencing regions of 16S rRNA gene
+
++ ~15kb (not currently possible to sequence entire gene)
++ Conserved and hyper-variable regions
+
+### How do we query a new microbiome?
+
++ Tringe & Rubin (2005)
+
+### Functional identification
+
++ Sequencing based
++ Mass spectrometry based
++ Microbial gene expression
+
+\  
+
+## Lecture 1: Metagenomics assays, overview of microbiome analysis
+
+### Culture independent techniques
+
++ **note:** course will not emphasize processing/assembly pipelines, etc.; Joey can provide refs to workshops, etc.
++ 16s amplicon sequencing is still most common technique
++ Num. species counted/measured vs. cost (high to low)
+
+    1. Universal gene census
+    2. Shotgun metagenome sequencing
+    3. Transcriptomics (shotgun mRNA) <- really hard...
+    4. Proteomics (protein fragments) <- depends on good reference (metagenome seq)
+    5. Metabolomics (excreted chemicals) <- can be successful if focused; shotgun/discovery is expensive and difficult
+
+### Nucleic acid sequencing as a tool for microbial community analysis
+
++ Shotgun: lyse cells, extract DNA, direct to DNA sequencer
++ Amplicons: lyce cells, extract DNA, PCR to amplify single marker gene (16s)
++ Variable regions: V1 to V9 (different lengths)  
+
+    + V4 currently popular for Illumina sequencing (~400 bp)
+    + PCR primers bound one (or more?) variable regions; relatively conserved sequences adjacent to variable region
+    + Same region(s) amplified for all organisms present in sample, barcodes attached (for demultiplexing), sequenced
+    
++ From amplicons to relative microbial abundances: OTU/microbial clustering
+
+### Summary of Meta'omics
+
+### [workflow/outline]
+
++ Sequence processing
++ Comparing microbiomes
++ Identifying important microbes/taxa
+
+### OTUs - Operational Taxonomic Units
+
++ Depending on how closely you want to ID a microbe, might not be the most useful concept
+
+### Requirements for OTU clustering
+
++ Separating real from error-containing sequences
++ Count the abundances (true sequence + its errors)
++ For many years: 
+
+    + common practice was to solve this by UPGMA-style clustering at fixed sequence distance (97% similarity); 
+    + believed to approximate species similarity, while also convenient for accounting for bulk of errors from 454-sequencing
+
+### Problems with OTUs
+
++ Based on mock community data, many methods vastly overestimate number of unique features (OTUs)
++ DADA2 estimates accurately, UPARSE close; others (including mothur) pretty far off
++ Kopylova, et al (2016): Open-source sequence clustering methods improve state of the art. mSystems.
+
+### Motivaton: Lingering problem with OTUs
+
++ False positives
++ Low resolution
++ Scaling to large datasets, comparisons
++ Unstable
+
+### OTU clustering process
+
++ clustering/grouping samples with noisy reads (sequencing errors confound clustering)
++ DADA2 infers sample sequences statistically (aka strain variants)
+
+### DADA2: error model
+
++ sequencing errors follow known distribution (counts, unique sequence vs. effective Hamming distance, num. substitutions from presumed parent)
++ distinguish errors from true sequences
+
+### DADA2 algorithm assumptions
+
++ errors independent b/w diff sequences
++ errors independent b/w sites within a sequence
++ errant sequence i is produced from j with probability equal to product of site-wise transition probabilities
++ each transition probability depends on original nt, substituting nt, and quality score
++ abundance of reads w/ seq i produced from more-abundant seq j is Poisson distributed
++ E(abundance) equals error rate, multiplied by expected reads of sample seq j
++ i has count greater than or equal to one
++ ~ prob of seeing observed seq i abundance (or greater), given sequence j abundance
++ low P(A) indicates there are more reads of seq i than can be explained by errors introduced during the amplification and sequencing of n_j copies
++ **note:** like uparse, assumes reads are trimmed to uniform length
+
+### DADA2 algorithm cartoon
+
++ iteratively identify new sequences/features based on outliers/exceptions to the error model
+
+### DADA2: why is this possible?
+
++ Uses more information than traditional OTU clustering:
+    + abundance vs. ranks only
+    + seq diffs vs. counts only
+    + quality vs. no
+    + error model vs. no
+
+### DADA2 advantages: resolution
+
++ MacIntyre et al. Scientific Reports 2015
++ DADA2 more sensitive? in addition to being more specific
+
+### DADA2 advantages: resolution
+
++ Computational performance: fast, paralellizable across samples, low memory requirement
+
+### DADA2 advantages: stable richness
+
++ Num. features vs. library size less correlated w/ DADA2 than with OTUs
+
+### DADA2 advantages
+
++ Analytical:
+
+    + single nucleotide resolution
+    + lower false positive rate
+
++ Computational:
+
+    + linear scaling of computational costs
+
+\  
+
+# Session 2
+
+## Lecture 2: Descriptive statistics, normalizations & testing
+
+### Normalizing OTU tables for sequencing effort
+
++ Converting from raw counts to proportions
++ In samples with more reads, more confident about proportions -- this extra information gets thrown out my naive library size normalization
+
+### Other normalizations
+
++ Normalized by 1 component, n_d (assume that true abundance of OTU d is same across all samples)
++ Normalized by geometric mean (centered)
++ RNA-seq
+
+    + DESeq2: negative binomial distribution
+    + MetagenomeSeq: sample quantiles
+    
+### Describing microbiomic community is like taking a demographic census
+
++ number of subpopulations
++ how well represented are different subpopulations?
++ are some subpopulations more popular than others?
+
+### Alpha diversity
+
++ Diversity of a single community (specimen)
+
+### Species richness
+
++ Higher R = greater diversity
+
+### Rarefaction curves
+
+### Rarefactions
+
++ Can also be useful for saturation curves
+
+### Chao1 index
+
++ Species richness too sensitive to depth of sampling
++ Chao1 applies correction
+
+### Shannon index
+
++ Measure of how even different taxa are in terms of abundance
++ related to evenness
+
+### Simpson index
+
++ Measure of whether certain subpopulations dominate
+
+### Phylogenetic diversity (Faith's D)
+
+### Hypothesis testing
+
++ Can be done on indices or on individual samples
++ Questions:
+
+    + are there specific taxa associated w/ treatment?
+    + is there correlation b/w abundance of taxa and phenotypes?
+    
+### Hypotheses
+
+### Distribution of OTU abundance data
+
+### Chi-squared test for taxon incidence
+
++ Focus on a single taxon
++ Incidence ~= presence (binarized data)
++ Is frequency of occurrence of this taxon different b/w two groups?
+
+### Mann-Whitney U or Wilcoxon rank-sum two-sample test
+
++ Test whether abundance of individual taxa are different b/w groups
++ U-stat connected with ROC?
+
+### Kruskal Wallis one-way analysis of variance
+
++ More than two groups
+
+### Problems with multiple hypothesis testing
+
+### Family wise error rate
+
++ Adjust significance of each indivudal test to ensure overall significance at given alpha cutoff
++ Tends to be very stringent/conservative
++ Example: Bonferroni correction
+
+### FDR: false discovery rate
+
++ Instead of controlling Type I error, instead control rate at which Type I errors do occur
++ Ex: Benjamini-Hochberg
++ Ex: Benjamini-Hochberg-Yekutieli
+
+### Filtering: reducing the number of tests
+
++ Don't do hypothesis tests that you don't need to do!
+
+\  
+
+# Session 3:
+
+## Lecture 3: Mixture models for microbiome data
+
+### Multiple testing
+
++ p-values distributed uniformly when null hypothesis is true
+
+### Model uncertainty in NGS count data
+
++ uncertainty depends on library size
++ Poisson-only count simulation vs. proportion from simulation
+
+    + Repeat simulation (resampling) many times and different library sizes
+    + Uncertainty is greater at smaller library size
+    + Observed variance scales with mean count
+    + Poisson describes technical sequencing replicates
+    + Each feature for each sample is modeled by a Poisson process - i.e., count represents a mean from sampling
+    
+### Model uncertainty in NGS: real data
+
++ Negative binomial: variance = u_i,c*s_j + phi_i,c*s_j^2*u_i,c^2
++ Over-dispersion: increased variance as a function of mean relative to expected (Poisson); additional variation is biological
++ Strong function of Mean
++ Share information across features to improve fit
+
+### Model uncertainty in NGS: negative binomial
+
++ Negative binomial is an infinite mixture of Poisson R.V. (finite mixture = fixed number of distributions)
++ Intuition: relevant when we have (almost) as many different distributions (Poisson means) as observations
++ Borrow from RNA-seq analysis implementations
+
+### Finite mixture models
+
++ EM algorithm
++ `FlexMix`
++ examples...
+
+### Infinite mixture model
+
+### Inefficient normalization by "rarefying"
+
++ sequencing creates libs of unequal sizes
++ early analyses focused on library-wise distances; paradigm: rarefy -> UniFrac -> PCoA -> write paper
++ this approach has "leaked" into forma settings; standard normalization method is "rarefying"
+
+### Rarefying vs. rarefaction curves
+
++ Sanders 1968
++ non-parametric richness
++ estimate coverage
++ Normalize? No!
+
+### Rarefying procedure
+
+### Issues with rarefying for clustering
+
++ Loss of power:
+
+    + Samples cannot be classified because discarded
+    + Samples poorly distinguishable because of discarded fraction of original library
+
++ Arbitrary threshold:
+
+    + Choice clearly affects performance
+    + Optimum value (min lib size) can't be known in practice
+    
+### Differential abundance
+
++ Rarefied counts worse sensitivity in every analysis methods attempted
++ Rarefied counts also worse specificity (high FPs)
+
+    + no accounting for overdispersion
+    + added noise from subsampling step
+
