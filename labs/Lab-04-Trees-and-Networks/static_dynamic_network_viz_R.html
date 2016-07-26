@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<!-- saved from url=(0039)http://kateto.net/network-visualization -->
+<html lang="en-US"><!--<![endif]--><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+<title>Static and dynamic network visualization with R</title>
+<link rel="profile" href="http://gmpg.org/xfn/11">
+<link rel="pingback" href="http://kateto.net/wordpress/xmlrpc.php">
+<link rel="stylesheet" href="./Static and dynamic network visualization with R_files/shortcodes.css" type="text/css" media="screen">
+<link rel="stylesheet" href="./Static and dynamic network visualization with R_files/style.css" type="text/css" media="screen">
+<link rel="stylesheet" href="./Static and dynamic network visualization with R_files/katya.css" type="text/css" media="screen">
+	
+<!--[if IE 6]> <link rel="stylesheet" type="text/css" href="http://kateto.net/wordpress/wp-content/themes/modular/styles/_ie/ie6.css"> <![endif]-->
+<!--[if IE 7]> <link rel="stylesheet" type="text/css" href="http://kateto.net/wordpress/wp-content/themes/modular/styles/_ie/ie7.css"> <![endif]-->
+<!--[if IE 8]> <link rel="stylesheet" type="text/css" href="http://kateto.net/wordpress/wp-content/themes/modular/styles/_ie/ie8.css"> <![endif]-->
+<link rel="shortcut icon" href="http://kateto.net/wordpress/wp-content/uploads/2012/04/favicon.ico">
+<style type="text/css">
+#body_inner .galleria-container, .wp-caption, #content .gallery img, .single_post_image img, .post_grid_image img, .post_list_image img, .framed, .video_frame, .mysite_flickr_widget img, .avatar, .about_author_module .avatar, .fancy_images img { background-color: #ffffff;padding: 7px; !important; }
+
+#breadcrumbs, #breadcrumbs a {color:#666;  !important;}
+
+h1,h2,h3,h4,h5,h6,.logo a{ font-family: 'PT Sans', sans-serif; !important;}
+
+.additional_posts h4,#sidebar .widgettitle,.toggle a,.toggle_accordion a, #intro .intro_title, #intro .teaser, #slider_module+#intro h3, #outro,#outro a{ font-family: 'PT Sans', sans-serif; !important;}
+
+.jqueryslidemenu a{color:#444;font-size:18px;  font-weight:normal; font-family: 'PT Sans', sans-serif;  font-style:normal; !important;}
+
+body{ font-size: .8em; font-family: 'Nobile', sans-serif; font-weight: 400; font-color:#000; !important; }
+
+.three_column_blog .post_title { font-size: 19px !important; }
+
+  .gist {width:620px !important;}
+  .gist-data {max-height: 200px;max-width: 620px;}
+
+</style>
+
+<script src="./Static and dynamic network visualization with R_files/www-widgetapi-vflSEIUSR.js" async=""></script><script type="text/javascript" async="" src="./Static and dynamic network visualization with R_files/ga.js"></script><script type="text/javascript">
+/* <![CDATA[ */
+	var imageResize = "timthumb",
+	    resizeDisabled = "",
+	    assetsUri = "http://kateto.net/wordpress/wp-content/themes/modular/images/assets",
+        imageNonce = "2c6011ff92",
+	    disableSlidemenu = "false",
+	    prettyphotoTheme = "pp_default",
+	    imagePadding = "8",
+	    responsiveSite = "false";
+	document.write('<style type="text/css">.noscript{visibility: hidden;}.ie .noscript{visibility: collapse;}.noscript_dn{display: none;}</style>');
+/* ]]> */
+</script><style type="text/css">.noscript{visibility: hidden;}.ie .noscript{visibility: collapse;}.noscript_dn{display: none;}</style>
+<link rel="alternate" type="application/rss+xml" title="Katya Ognyanova » Feed" href="http://kateto.net/feed/">
+<link rel="alternate" type="application/rss+xml" title="Katya Ognyanova » Comments Feed" href="http://kateto.net/comments/feed/">
+<link rel="alternate" type="application/rss+xml" title="Katya Ognyanova » Static and dynamic network visualization with R Comments Feed" href="http://kateto.net/network-visualization/feed/">
+		<script type="text/javascript">
+			window._wpemojiSettings = {"baseUrl":"https:\/\/s.w.org\/images\/core\/emoji\/72x72\/","ext":".png","source":{"concatemoji":"http:\/\/kateto.net\/wordpress\/wp-includes\/js\/wp-emoji-release.min.js?ver=4.5.3"}};
+			!function(a,b,c){function d(a){var c,d,e,f=b.createElement("canvas"),g=f.getContext&&f.getContext("2d"),h=String.fromCharCode;if(!g||!g.fillText)return!1;switch(g.textBaseline="top",g.font="600 32px Arial",a){case"flag":return g.fillText(h(55356,56806,55356,56826),0,0),f.toDataURL().length>3e3;case"diversity":return g.fillText(h(55356,57221),0,0),c=g.getImageData(16,16,1,1).data,d=c[0]+","+c[1]+","+c[2]+","+c[3],g.fillText(h(55356,57221,55356,57343),0,0),c=g.getImageData(16,16,1,1).data,e=c[0]+","+c[1]+","+c[2]+","+c[3],d!==e;case"simple":return g.fillText(h(55357,56835),0,0),0!==g.getImageData(16,16,1,1).data[0];case"unicode8":return g.fillText(h(55356,57135),0,0),0!==g.getImageData(16,16,1,1).data[0]}return!1}function e(a){var c=b.createElement("script");c.src=a,c.type="text/javascript",b.getElementsByTagName("head")[0].appendChild(c)}var f,g,h,i;for(i=Array("simple","flag","unicode8","diversity"),c.supports={everything:!0,everythingExceptFlag:!0},h=0;h<i.length;h++)c.supports[i[h]]=d(i[h]),c.supports.everything=c.supports.everything&&c.supports[i[h]],"flag"!==i[h]&&(c.supports.everythingExceptFlag=c.supports.everythingExceptFlag&&c.supports[i[h]]);c.supports.everythingExceptFlag=c.supports.everythingExceptFlag&&!c.supports.flag,c.DOMReady=!1,c.readyCallback=function(){c.DOMReady=!0},c.supports.everything||(g=function(){c.readyCallback()},b.addEventListener?(b.addEventListener("DOMContentLoaded",g,!1),a.addEventListener("load",g,!1)):(a.attachEvent("onload",g),b.attachEvent("onreadystatechange",function(){"complete"===b.readyState&&c.readyCallback()})),f=c.source||{},f.concatemoji?e(f.concatemoji):f.wpemoji&&f.twemoji&&(e(f.twemoji),e(f.wpemoji)))}(window,document,window._wpemojiSettings);
+		</script>
+		<style type="text/css">
+img.wp-smiley,
+img.emoji {
+	display: inline !important;
+	border: none !important;
+	box-shadow: none !important;
+	height: 1em !important;
+	width: 1em !important;
+	margin: 0 .07em !important;
+	vertical-align: -0.1em !important;
+	background: none !important;
+	padding: 0 !important;
+}
+</style>
+<link rel="stylesheet" id="mysite_prettyphoto-css" href="./Static and dynamic network visualization with R_files/prettyPhoto.css" type="text/css" media="screen">
+<link rel="stylesheet" id="contact-form-7-css" href="./Static and dynamic network visualization with R_files/styles.css" type="text/css" media="all">
+<!-- This site uses the Google Analytics by MonsterInsights plugin v5.5.2 - Universal disabled - https://www.monsterinsights.com/ -->
+<script type="text/javascript">
+
+	var _gaq = _gaq || [];
+	_gaq.push(['_setAccount', 'UA-9692471-1']);
+	_gaq.push(['_gat._forceSSL']);
+	_gaq.push(['_trackPageview']);
+
+	(function () {
+		var ga = document.createElement('script');
+		ga.type = 'text/javascript';
+		ga.async = true;
+		ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+		var s = document.getElementsByTagName('script')[0];
+		s.parentNode.insertBefore(ga, s);
+	})();
+
+</script>
+<!-- / Google Analytics by MonsterInsights -->
+<script type="text/javascript" src="./Static and dynamic network visualization with R_files/jquery.js"></script>
+<script type="text/javascript" src="./Static and dynamic network visualization with R_files/jquery-migrate.min.js"></script>
+<script type="text/javascript" src="./Static and dynamic network visualization with R_files/tabs.min.js"></script>
+<script type="text/javascript" src="./Static and dynamic network visualization with R_files/custom.js"></script><style type="text/css">input.styled { display: none; } select.styled { position: relative; width: 190px; opacity: 0; filter: alpha(opacity=0); z-index: 5; } .disabled { opacity: 0.5; filter: alpha(opacity=50); }</style>
+<link rel="https://api.w.org/" href="http://kateto.net/wp-json/">
+<link rel="EditURI" type="application/rsd+xml" title="RSD" href="http://kateto.net/wordpress/xmlrpc.php?rsd">
+<link rel="wlwmanifest" type="application/wlwmanifest+xml" href="http://kateto.net/wordpress/wp-includes/wlwmanifest.xml"> 
+<link rel="prev" title="Network datasets" href="http://kateto.net/2016/05/network-datasets/">
+<meta name="generator" content="WordPress 4.5.3">
+<link rel="shortlink" href="http://kateto.net/?p=3724">
+<link rel="alternate" type="application/json+oembed" href="http://kateto.net/wp-json/oembed/1.0/embed?url=http%3A%2F%2Fkateto.net%2Fnetwork-visualization">
+<link rel="alternate" type="text/xml+oembed" href="http://kateto.net/wp-json/oembed/1.0/embed?url=http%3A%2F%2Fkateto.net%2Fnetwork-visualization&amp;format=xml">
+
+ <!-- AStickyPostOrderER (Version: 0.3.1) -->
+<style type="text/css" id="syntaxhighlighteranchor"></style>
+
+<link href="./Static and dynamic network visualization with R_files/css" rel="stylesheet" type="text/css">
+
+<link href="./Static and dynamic network visualization with R_files/css(1)" rel="stylesheet" type="text/css">
+ 
+<!-- <link href='http://fonts.googleapis.com/css?family=Oxygen' rel='stylesheet' type='text/css'> -->
+ 
+<link href="./Static and dynamic network visualization with R_files/css(2)" rel="stylesheet" type="text/css">
+<style id="style-1-cropbar-clipper">/* Copyright 2014 Evernote Corporation. All rights reserved. */
+.en-markup-crop-options {
+    top: 18px !important;
+    left: 50% !important;
+    margin-left: -100px !important;
+    width: 200px !important;
+    border: 2px rgba(255,255,255,.38) solid !important;
+    border-radius: 4px !important;
+}
+
+.en-markup-crop-options div div:first-of-type {
+    margin-left: 0px !important;
+}
+</style></head>
+
+<body class="has_header_text has_fullbg has_featured_image full_width no_footer">
+<div class="multibg"><div class="multibg"></div></div>
+<div id="body_inner">
+	
+<div id="header_extras"><div id="header_extras_inner"><div class="header_text">Katherine Ognyanova on Life, the Universe, and Networked Media  &nbsp; <a href="http://kateto.net/?feed=rss2" target="_blank"><img src="./Static and dynamic network visualization with R_files/rss2.png" ,="" alt="RSS Feed" width="12"> </a> </div></div><!-- #header_extras_inner --></div><!-- #header_extras --><div id="header">
+		<div id="header_inner">
+			
+		<div class="logo"><a rel="home" href="http://kateto.net/" class="site_title">Katya Ognyanova</a></div><!-- .logo --></div><!-- #header_inner -->
+	</div><!-- #header -->
+	
+<div id="primary_menu"><div class="jqueryslidemenu"><ul id="menu-topmenu" class=""><li id="menu-item-996" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-home"><a href="http://kateto.net/"><span>Home</span></a></li>
+<li id="menu-item-997" class="menu-item menu-item-type-post_type menu-item-object-page"><a href="http://kateto.net/blog/"><span>Blog</span></a></li>
+<li id="menu-item-998" class="menu-item menu-item-type-post_type menu-item-object-page"><a href="http://kateto.net/bio/"><span>Bio Brief</span></a></li>
+<li id="menu-item-2577" class="menu-item menu-item-type-post_type menu-item-object-page"><a href="http://kateto.net/research/"><span>Research</span></a></li>
+<li id="menu-item-2736" class="menu-item menu-item-type-post_type menu-item-object-page"><a href="http://kateto.net/publications"><span>Publications</span></a></li>
+<li id="menu-item-2582" class="menu-item menu-item-type-post_type menu-item-object-page"><a href="http://kateto.net/resources/"><span>Presentations</span></a></li>
+<li id="menu-item-1002" class="menu-item menu-item-type-post_type menu-item-object-page"><a href="http://kateto.net/photos/"><span>Photos</span></a></li>
+</ul></div><div class="clearboth"></div></div><!-- #primary_menu --><div id="content">
+		<div id="content_inner">
+			
+			<div id="main">
+				<div id="main_inner">
+					
+	<div class="single_post_module">
+		<div id="post-3724" class="post-3724 post type-post status-publish format-standard has-post-thumbnail hentry category-featured category-network-analysis category-post tag-d3 tag-ndtv tag-network tag-network-analysis-2 tag-network-science tag-network-tutorial tag-network-visualization tag-r tag-sna tag-visualization">
+			
+			<h2 class="post_title">Static and dynamic network visualization with R</h2>			
+			<div class="single_post_content">
+				
+				<p class="post_meta"><span class="meta_date"><a href="http://kateto.net/2016/06/" title="Wednesday, June 22nd, 2016, 9:30 pm">06-22-2016</a></span> </p>				
+				<div class="entry">
+					<style type="text/css">.post_title { display: none !important; }</style>
+<p><b>[June 2016 update]</b> This tutorial has been updated and extended. The new version includes additional information (more on interactive JS networks, geographic data, etc). If you want to see the old version, it is still available <a href="http://www.kateto.net/wordpress/wp-content/uploads/2015/06/polnet.html" target="_blank">here</a>. You can also get the <a href="http://kateto.net/wordpress/wp-content/uploads/2016/06/Polnet%202016%20R%20Network%20Visualization%20Workshop.pdf" onclick="_gaq.push([&#39;_trackEvent&#39;,&#39;download&#39;,&#39;http://kateto.net/wordpress/wp-content/uploads/2016/06/Polnet%202016%20R%20Network%20Visualization%20Workshop.pdf&#39;]);" target="_blank">new tutorial PDF</a> and <a href="http://kateto.net/wordpress/wp-content/uploads/2016/06/Polnet%202016%20R%20Network%20Visualization%20Workshop.R" target="_blank">code</a> <a href="http://kateto.net/wordpress/wp-content/uploads/2016/06/polnet2016.zip" target="_blank">here</a> or <a href="https://github.com/kateto/R-Network-Visualization-Workshop" onclick="_gaq.push([&#39;_trackEvent&#39;, &#39;outbound-article&#39;, &#39;https://github.com/kateto/R-Network-Visualization-Workshop&#39;, &#39;on GithHub&#39;]);" target="_blank">on GithHub</a>.</p>
+<p>Please be patient: the frame below contains a lot of images and javascript animations and may take a bit to load.</p>
+<p><iframe src="./Static and dynamic network visualization with R_files/polnet2016.html" width="100%" height="50800" scrolling="no" ,="" frameborder="0"></iframe></p>
+					
+					<div class="clearboth"></div>
+					
+															
+				</div><!-- .entry -->
+				
+				<p class="post_meta_bottom"><span class="meta_category"> <em>Categories:</em>&nbsp;<a href="http://kateto.net/category/post/featured/" rel="tag">Featured</a>, <a href="http://kateto.net/networks" rel="tag">Networks</a>, <a href="http://kateto.net/category/post/" rel="tag">Post</a></span> <span class="meta_post_tag"> <em>Tags:</em>&nbsp;<a href="http://kateto.net/tag/d3/" rel="tag">D3</a>, <a href="http://kateto.net/tag/ndtv/" rel="tag">ndtv</a>, <a href="http://kateto.net/tag/network/" rel="tag">network</a>, <a href="http://kateto.net/tag/network-analysis-2/" rel="tag">network analysis</a>, <a href="http://kateto.net/tag/network-science/" rel="tag">network science</a>, <a href="http://kateto.net/tag/network-tutorial/" rel="tag">network tutorial</a>, <a href="http://kateto.net/tag/network-visualization/" rel="tag">network visualization</a>, <a href="http://kateto.net/tag/r/" rel="tag">R</a>, <a href="http://kateto.net/tag/sna/" rel="tag">sna</a>, <a href="http://kateto.net/tag/visualization/" rel="tag">visualization</a></span></p>				
+			</div><!-- .single_post_content -->
+			
+			</div><!-- #post-## -->
+		</div><!-- .single_post_module -->
+		
+		<div class="additional_posts_module"><div class="blog_tabs_container"><ul class="blog_tabs"><li><a href="http://kateto.net/network-visualization#" class="current">Popular Posts</a></li><li><a href="http://kateto.net/network-visualization#">Related Posts</a></li></ul><div class="blog_tabs_content" style="display: block;"><div class="post_grid four_column_blog"><div class="one_fourth"><div class="post_grid_module"><div class="post_grid_image"><a href="http://kateto.net/2010/09/usc-academic-resources-and-online-tools/" title="USC Academic Resources and Online Tools"><img class="hover_fade_js" src="./Static and dynamic network visualization with R_files/thumb.php" title="USC Academic Resources and Online Tools" alt="Usc Feat" width="204" height="126"></a></div><div class="post_grid_content"><p class="post_title"><a href="http://kateto.net/2010/09/usc-academic-resources-and-online-tools/" title="USC Academic Resources and Online Tools" rel="bookmark">USC Academic Resources and Online Tools</a></p></div></div></div><div class="one_fourth"><div class="post_grid_module"><div class="post_grid_image"><a href="http://kateto.net/2013/10/boston-data-swap-2013-talk/" title="Boston Data Swap 2013 Talk"><img class="hover_fade_js" src="./Static and dynamic network visualization with R_files/thumb(1).php" title="Boston Data Swap 2013 Talk" alt="DataSwap 900x350" width="204" height="126"></a></div><div class="post_grid_content"><p class="post_title"><a href="http://kateto.net/2013/10/boston-data-swap-2013-talk/" title="Boston Data Swap 2013 Talk" rel="bookmark">Boston Data Swap 2013 Talk</a></p></div></div></div><div class="one_fourth"><div class="post_grid_module"><div class="post_grid_image"><a href="http://kateto.net/NULab-Gephi" title="Gephi Workshop at Northeastern’s NULab"><img class="hover_fade_js" src="./Static and dynamic network visualization with R_files/thumb(2).php" title="Gephi Workshop at Northeastern’s NULab" alt="NULab Gephi Workshop" width="204" height="126"></a></div><div class="post_grid_content"><p class="post_title"><a href="http://kateto.net/NULab-Gephi" title="Gephi Workshop at Northeastern’s NULab" rel="bookmark">Gephi Workshop at Northeastern’s NULab</a></p></div></div></div><div class="one_fourth last"><div class="post_grid_module"><div class="post_grid_image"><a href="http://kateto.net/2014/04/facebook-data-collection-and-photo-network-visualization-with-gephi-and-r/" title="Facebook data collection and photo network visualization with Gephi and R"><img class="hover_fade_js" src="./Static and dynamic network visualization with R_files/thumb(3).php" title="Facebook data collection and photo network visualization with Gephi and R" alt="Image Networks Gephi R Feat" width="204" height="126"></a></div><div class="post_grid_content"><p class="post_title"><a href="http://kateto.net/2014/04/facebook-data-collection-and-photo-network-visualization-with-gephi-and-r/" title="Facebook data collection and photo network visualization with Gephi and R" rel="bookmark">Facebook data collection and photo network visualization with Gephi and R</a></p></div></div></div></div></div><div class="blog_tabs_content" style="display: none;"><div class="post_grid four_column_blog"><div class="one_fourth"><div class="post_grid_module"><div class="post_grid_image"><a href="http://kateto.net/2016/05/network-datasets/" title="Network datasets"><img class="hover_fade_js" src="./Static and dynamic network visualization with R_files/thumb(4).php" title="Network datasets" alt="Network Data" width="204" height="126"></a></div><div class="post_grid_content"><p class="post_title"><a href="http://kateto.net/2016/05/network-datasets/" title="Network datasets" rel="bookmark">Network datasets</a></p></div></div></div><div class="one_fourth"><div class="post_grid_module"><div class="post_grid_image"><a href="http://kateto.net/sunbelt2016" title="Sunbelt network visualization: R and Gephi tutorials"><img class="hover_fade_js" src="./Static and dynamic network visualization with R_files/thumb(5).php" title="Sunbelt network visualization: R and Gephi tutorials" alt="Gephi R Sunbelt2016" width="204" height="126"></a></div><div class="post_grid_content"><p class="post_title"><a href="http://kateto.net/sunbelt2016" title="Sunbelt network visualization: R and Gephi tutorials" rel="bookmark">Sunbelt network visualization: R and Gephi tutorials</a></p></div></div></div><div class="one_fourth"><div class="post_grid_module"><div class="post_grid_image"><a href="http://kateto.net/2016/03/upcoming-network-visualization-workshops-at-sunbelt-and-polnet/" title="Upcoming network visualization workshops at Sunbelt and POLNET"><img class="hover_fade_js" src="./Static and dynamic network visualization with R_files/thumb(6).php" title="Upcoming network visualization workshops at Sunbelt and POLNET" alt="Network Viz" width="204" height="126"></a></div><div class="post_grid_content"><p class="post_title"><a href="http://kateto.net/2016/03/upcoming-network-visualization-workshops-at-sunbelt-and-polnet/" title="Upcoming network visualization workshops at Sunbelt and POLNET" rel="bookmark">Upcoming network visualization workshops at Sunbelt and POLNET</a></p></div></div></div><div class="one_fourth last"><div class="post_grid_module"><div class="post_grid_image"><a href="http://kateto.net/networks-r-igraph" title="Network analysis with R and igraph: NetSci X Tutorial"><img class="hover_fade_js" src="./Static and dynamic network visualization with R_files/thumb(7).php" title="Network analysis with R and igraph: NetSci X Tutorial" alt="Igraph" width="204" height="126"></a></div><div class="post_grid_content"><p class="post_title"><a href="http://kateto.net/networks-r-igraph" title="Network analysis with R and igraph: NetSci X Tutorial" rel="bookmark">Network analysis with R and igraph: NetSci X Tutorial</a></p></div></div></div></div></div></div></div>		
+			
+	
+	
+				<div id="respond" class="comment-respond">
+			<h3 id="reply-title" class="comment-reply-title">Leave a Reply <small><a rel="nofollow" id="cancel-comment-reply-link" href="http://kateto.net/network-visualization#respond" style="display:none;">Click here to cancel reply.</a></small></h3><p class="alert">You must be <a href="http://kateto.net/wordpress/wp-login.php?redirect_to=http%3A%2F%2Fkateto.net%2Fnetwork-visualization" title="Log in">logged in</a> to post a comment.</p><!-- .alert -->		</div><!-- #respond -->
+			
+
+
+		<div class="clearboth"></div>
+	</div><!-- #main_inner -->
+</div><!-- #main -->
+
+
+<div class="clearboth"></div>
+
+	</div><!-- #content_inner -->
+</div><!-- #content -->
+
+<div id="footer">
+	<div class="multibg">
+		<div class="multibg"></div>
+	</div>
+	<div id="footer_inner">
+		</div><!-- #footer_inner -->
+	</div><!-- #footer -->
+
+<div id="sub_footer"><div id="sub_footer_inner"><div class="copyright_text">|  2015 Katherine Ognyanova / Катерина Огнянова      |     <a href="http://kateto.net/?feed=rss2">Blog RSS feed</a>     |</div></div><!-- #sub_footer_inner --></div><!-- #sub_footer --></div><!-- #body_inner -->
+
+<script type="text/javascript" src="./Static and dynamic network visualization with R_files/jquery.prettyPhoto.js"></script>
+<script type="text/javascript" src="./Static and dynamic network visualization with R_files/jquery.form.min.js"></script>
+<script type="text/javascript">
+/* <![CDATA[ */
+var _wpcf7 = {"loaderUrl":"http:\/\/kateto.net\/wordpress\/wp-content\/plugins\/contact-form-7\/images\/ajax-loader.gif","recaptchaEmpty":"Please verify that you are not a robot.","sending":"Sending ..."};
+/* ]]> */
+</script>
+<script type="text/javascript" src="./Static and dynamic network visualization with R_files/scripts.js"></script>
+<script type="text/javascript" src="./Static and dynamic network visualization with R_files/wp-embed.min.js"></script>
+<script type="text/javascript">/* <![CDATA[ */jQuery( '#main_inner' ).preloader({ imgSelector: '.blog_index_image_load span img', imgAppend: '.blog_index_image_load' });jQuery( '.one_column_portfolio' ).preloader({ imgSelector: '.portfolio_img_load span img', imgAppend: '.portfolio_img_load' });jQuery( '.two_column_portfolio' ).preloader({ imgSelector: '.portfolio_img_load span img', imgAppend: '.portfolio_img_load' });jQuery( '.three_column_portfolio' ).preloader({ imgSelector: '.portfolio_img_load span img', imgAppend: '.portfolio_img_load' });jQuery( '.four_column_portfolio' ).preloader({ imgSelector: '.portfolio_img_load span img', imgAppend: '.portfolio_img_load' });jQuery( '.portfolio_gallery.large_post_list' ).preloader({ imgSelector: '.portfolio_img_load span img', imgAppend: '.portfolio_img_load' });jQuery( '.portfolio_gallery.medium_post_list' ).preloader({ imgSelector: '.portfolio_img_load span img', imgAppend: '.portfolio_img_load' });jQuery( '.portfolio_gallery.small_post_list' ).preloader({ imgSelector: '.portfolio_img_load span img', imgAppend: '.portfolio_img_load' });jQuery( '#main_inner' ).preloader({ imgSelector: '.portfolio_full_image span img', imgAppend: '.portfolio_full_image' });jQuery( '#main_inner' ).preloader({ imgSelector: '.blog_sc_image_load span img', imgAppend: '.blog_sc_image_load' });jQuery( '#main_inner, #sidebar_inner' ).preloader({ imgSelector: '.fancy_image_load span img', imgAppend: '.fancy_image_load', oneachload: function(image){var imageCaption = jQuery(image).parent().parent().next();if(imageCaption.length>0){imageCaption.remove();jQuery(image).parent().addClass('has_caption_frame');jQuery(image).parent().append(imageCaption);jQuery(image).next().css('display','block');}}});jQuery( '#intro_inner' ).preloader({ imgSelector: '.fancy_image_load span img', imgAppend: '.fancy_image_load', oneachload: function(image){var imageCaption = jQuery(image).parent().parent().next();if(imageCaption.length>0){imageCaption.remove();jQuery(image).parent().addClass('has_caption_frame');jQuery(image).parent().append(imageCaption);jQuery(image).next().css('display','block');}}});function mysite_jcarousel_setup(c) {c.clip.parent().parent().parent().parent().parent().removeClass('noscript');var jcarousel_img_load = c.clip.children().children().find('.post_grid_image .portfolio_img_load');if( jcarousel_img_load.length>1 ) {jcarousel_img_load.each(function(i) {var filename = jQuery(this).attr('href'),videos=['swf','youtube','vimeo','mov'];for(var v in videos){if(filename.match(videos[v])){jQuery(this).css('backgroundImage','url(' +assetsUri+ '/play.png)');}else{jQuery(this).css('backgroundImage','url(' +assetsUri+ '/zoom.png)');}}});}}/* ]]> */</script>
+
+</body></html>

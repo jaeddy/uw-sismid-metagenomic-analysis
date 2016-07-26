@@ -1,0 +1,162 @@
+/* Katya - based on Modular - black */
+
+
+.wp-pagenavi .current,.paged-navigation .current,#wp-calendar caption,
+body,body>.multibg>.multibg,.post_sociable,
+#header_extras,#header,#outro,#footer,#sub_footer,.post_more_link,.partial_gradient_slide .slide_overlay,
+.blog_tabs a.current, #comments-title,.share_this_title,.about_author_title,.comment-reply-link,.commentlist_title,
+.button_link,.fancy_button,#searchsubmit,#submit,.cluetip-default,
+.titled_box_title,.colored_box,.dropcap4,.pullquote4,.highlight,
+.tabs_button a.current,.fancy_header span,.minimal_table th{/*:Color Scheme*/
+background-color:#585858;}
+h1,.intro_title,cite,cite a,.tabs a.current,
+a:hover,.fancy_link,.dropcap2,.pullquote3,.highlight2,h5{/*:Color Scheme*/
+color:#585858;}
+.wp-pagenavi .current,.paged-navigation .current,#wp-calendar caption,
+body,#header_extras,#sub_footer,
+.about_author_title,.comment-reply-link,.commentlist_title,
+.button_link,.fancy_button,#searchsubmit,#submit,.cluetip-default,.cluetip-default .cluetip-arrows,
+.titled_box_title,.colored_box,.dropcap4,.pullquote4,.highlight,
+.tabs_button a.current,.fancy_header span,.minimal_table th{/*:Color Scheme*/
+border-color:#585858;}
+#content .mysite_twitter_widget li,#content .recentcomments,.post_comments_bubble,
+#content .widget_archive li,#content .widget_categories li,#content .widget_links li,#content .widget_nav_menu li,
+#content .widget_pages li,#content .mysite_subnav_widget li,#content .widget_recent_entries li,
+#content .contact_widget_name,#content .contact_widget_phone,#content .contact_widget_email,
+.toggle,.toggle_accordion,.active,.toggle_frame .toggle,.toggle_frame .toggle_accordion,.toggle_frame .active,
+.fancy_list .arrow_list,.fancy_list .bullet_list,.fancy_list .check_list,.fancy_list .circle_arrow,.fancy_list .triangle_arrow,.fancy_list .comment_list,.fancy_list .minus_list,.fancy_list .plus_list,.fancy_list .star_list,.sitemap_list li,
+blockquote,.download_link,.email_link,.twitter_link,.dropcap,.dropcap3,.tabs_vertical li.current span, .featured_tabs li.current_page_item span{/*:Icon Sprite*/
+background-image:url(http://kateto.net/wordpress/wp-content/themes/modular/styles/_sprites/custom_sprite_585858.png);}
+
+
+/*:General Typography ~*~*/
+body{/*:Body Font */
+color:#222;font-size:12px;font-weight:normal;font-style:normal;font-family:Tahoma, Geneva, Verdana, sans-serif;}
+h1{/*:h1 Font*/ 
+color:#777;font-size:34px;font-weight:normal;font-style:normal;font-family:ptsans;}
+h2{/*:h2 Font*/ 
+color:#444;font-size:30px;font-weight:normal;font-style:normal;font-family:ptsans;}
+h3{/*:h3 Font*/ 
+color:#444;font-size:22px;font-weight:normal;font-style:normal;font-family:ptsans;}
+h4{/*:h4 Font*/ 
+color:#444;font-size:16px;font-weight:normal;font-style:normal;font-family:ptsans;}
+h5{/*:h5 Font*/ 
+/*color:#444@;*/font-size:10px;font-weight:normal;font-style:normal;font-family:inherit;}
+h6{/*:h6 Font*/ 
+color:#444;font-size:10px;font-weight:normal;font-style:normal;font-family:inherit;}
+a{/*:Link*/
+color:#757575;text-decoration:none;}
+a:hover{/*:Link Hover*/
+color:#666;text-decoration:underline;}
+/*:Typo End ~*~*/
+
+
+/*:Body ~*~*/
+body{/*:Body Background */
+background-image:url(_patterns/pattern46.png);background-color:#ddd;background-repeat:repeat;background-attachment:scroll;background-position:center top;}
+/*:Body End ~*~*/
+
+
+/*:Header ~*~*/
+.logo a{/*:Logo Font*/ 
+color:#eee;font-size:36px;font-weight:normal;font-style:normal;font-family:ptsans;}
+#header{/*:Header Background */
+background-image:url(http://kateto.net/wordpress/wp-content/uploads/2014/09/gray-net-kateto5.jpg);background-color:#2d2d2d;background-repeat:repeat;background-attachment:scroll;background-position:left center;}
+#header_extras{/*:Header Extras Background */
+background-image:url(_rgba/black40.png);background-color:#424242;background-repeat:repeat;background-attachment:scroll;background-position:center top;}
+/*:Header End ~*~*/
+
+
+/*:Menu ~*~*/
+.jqueryslidemenu a{/*:Menu Font */
+color:#444;font-size:17px;font-weight:normal;font-style:normal;font-family:ptsans;}
+.jqueryslidemenu li li a{/*:Dropdown Menu Font */
+color:#aaa;font-size:13px;font-weight:normal;font-style:normal;font-family:inherit;}
+.jqueryslidemenu{/*:Menu Background */
+background-image:url(../images/menu_gradient.png);background-color:#dddfff;background-repeat:repeat-x;background-attachment:scroll;background-position:center bottom;}
+.jqueryslidemenu ul ul{/*:Dropdown Background */
+background-image:url(../images/menu_gradient.png);background-color:#eeeeee;background-repeat:repeat-x;background-attachment:scroll;background-position:center bottom;}
+.jqueryslidemenu>ul>li>a:hover,.jqueryslidemenu>ul>li:hover>a{/*:Menu Hover Background */
+background-image:none;background-color:#fff;background-repeat:repeat;background-attachment:scroll;background-position:scroll;}
+.jqueryslidemenu ul li ul li a:hover{/*:Dropdown Hover Background */
+background-image:url(_rgba/black02.png);background-color:transparent;background-repeat:repeat;background-attachment:scroll;background-position:center bottom;}
+/*:Menu End ~*~*/
+
+
+/*:Intro ~*~*/
+#intro .intro_title{/*:Intro Title Font */
+/*color:inherit@;*/font-size:34px;font-weight:normal;font-style:normal;font-family:ptsans;}
+#intro .teaser{/*:Intro Teaser Font */ 
+color:#aaa;font-size:16px;font-weight:normal;font-style:normal;font-family:ptsans;}
+#slider_module+#intro h3{/*:Call to Action Font*/ 
+color:#aaa;font-size:20px;font-weight:normal;font-style:normal;font-family:ptsans;}
+#breadcrumbs,#breadcrumbs a{/*:Breadcrumbs Font */
+color:#bbb;font-size:10px;font-weight:normal;font-style:normal;font-family:inherit;}
+#intro_inner{/*:Intro Background */
+background-image:url(../images/module_gradient.png);background-color:#f9f9f9;background-repeat:repeat-x;background-attachment:scroll;background-position:left top;}
+#intro_inner{/*:Intro Border */
+border-color:#fff;border-width:4px;border-style:solid;}
+/*:Intro End ~*~*/
+
+
+/*:Main Content ~*~*/
+.additional_posts h4,#sidebar .widgettitle{/*:Sidebar Titles Font */
+color:#444;font-size:18px;font-weight:normal;font-style:normal;font-family:ptsans;}
+#content{/*:Main Content Background */
+background-image:none;background-color:transparent;background-repeat:repeat-x;background-attachment:scroll;background-position:left top;}
+#sidebar .widget,#slider_module_inner,.page,
+.post_excerpt_module,.post_module,.share_this_module,.about_author_module,#respond,.popular_posts_module,.related_posts_module,.comment-text,
+.post_grid_module,.post_list_module,.single_post_module,
+.additional_posts_module .blog_tabs_content,.blog_tabs_content .trackbacks_pingbacks,.additional_posts{/*:Content Modules Background */
+background-image:url(../images/module_gradient.png);background-color:#fafafa;background-repeat:repeat-x;background-attachment:scroll;background-position:left top;}
+#sidebar .widget,#slider_module_inner,.page,
+.post_excerpt_module,.post_module,.share_this_module,.about_author_module,#respond,.popular_posts_module,.related_posts_module,.comment-text,
+.post_grid_module,.post_list_module,.single_post_module,
+.additional_posts_module .blog_tabs_content,.blog_tabs_content .trackbacks_pingbacks,.additional_posts{/*:Content Modules Border */
+border-color:#fff;border-width:4px;border-style:solid;}
+/*:Main End ~*~*/
+
+
+/*:Outro ~*~*/
+#outro,#outro a{/*:Outro Font */
+color:18px;font-size:18px;font-weight:normal;font-style:normal;font-family:ptsans;}
+#outro{/*:Outro Background */
+background-image:url(mauve/dark_bg.png);/*background-color:transparent@;*/background-repeat:repeat;background-attachment:scroll;background-position:center top;}
+/*:Outro End ~*~*/
+
+
+/*:Footer ~*~*/
+#footer{/*:Footer Font */
+color:#aaa;font-size:11px;font-weight:normal;font-style:normal;font-family:inherit;}
+#footer .widgettitle{/*:Footer Titles Font */
+color:#eee;font-size:16px;font-weight:normal;font-style:normal;font-family:inherit;}
+#footer a,#outro a{/*:Footer Links */
+color:#ddd;text-decoration:none;}
+#footer a:hover,#outro a:hover{/*:Footer Link Hover */
+color:#fff;text-decoration:none;}
+#footer{/*:Footer Background */
+background-image:url(mauve/dark_bg.png);/*background-color:transparent@;*/background-repeat:repeat;background-attachment:scroll;background-position:center top;}
+/*:Footer End ~*~*/
+
+
+/*:Sub Footer ~*~*/
+#sub_footer,#sub_footer a{/*:Sub Footer Font */
+color:#ccc;font-size:9px;font-weight:normal;font-style:normal;font-family:inherit;}
+#sub_footer{/*:Sub Footer Background */
+background-image:url(_rgba/black40.png);/*background-color:transparent@;*/background-repeat:repeat;background-attachment:scroll;background-position:center top;}
+/*:Sub Footer End ~*~*/
+
+
+/*:Misc ~*~*/
+.toggle a,.toggle_accordion a{/*:Toggle Title Font*/ 
+color:#888;font-size:15px;font-weight:normal;font-style:normal;font-family:ptsans;}
+#content .teaser{/*:Content Teaser Font */ 
+color:#aaa;font-size:16px;font-weight:normal;font-style:normal;font-family:ptsans;}
+/*:Misc End ~*~*/
+ 
+
+/* Custom CSS */
+#sidebar .widget,#slider_module_inner,#intro_inner,.page,
+.post_excerpt_module,.post_module,.share_this_module,.about_author_module,#respond,.popular_posts_module,.related_posts_module,.comment-text,
+.post_grid_module,.post_list_module,.single_post_module,
+.additional_posts_module .blog_tabs_content,.blog_tabs_content .trackbacks_pingbacks,.additional_posts{-webkit-box-shadow:0 1px 2px rgba(0,0,0,.2);-moz-box-shadow:0 1px 2px rgba(0,0,0,.2);box-shadow:0 1px 2px rgba(0,0,0,.2);}

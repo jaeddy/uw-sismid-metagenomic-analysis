@@ -1,0 +1,60 @@
+name: "Lab 04 Trees and Networks"
+output_dir: "."
+output: 
+  html_document: 
+    theme: cosmo
+    fig_caption: yes
+    number_sections: yes
+    toc: yes
+    toc_depth: 2
+    toc_float: true
+navbar:
+  title: "Lab 04"
+  type: inverse
+  left:
+    - text: "home"
+      icon: fa-home
+      href: http://sismid16m14.bot-tak.org/
+    - text: "Questions"
+      icon: fa-question
+      href: Lab-04-Trees-Networks-Questions.html
+    - text: "Answers"
+      icon: fa-exclamation
+      href: Lab-04-Trees-Networks-Answers.html
+    - text: "Source"
+      icon: fa-gear
+      href: Lab-04-Trees-Networks-Answers.Rmd
+    - text: "Further Reading"
+      icon: fa-newspaper-o
+      menu:
+        - text: "ggtree"
+        - text: "Introduction"
+          href: ggtree/ggtree.html
+        - text: "Visualization"
+          href: ggtree/treeVisualization.html
+        - text: "Annotation"
+          href: ggtree/treeAnnotation.html
+        - text: "Adv. Annotation"
+          href: ggtree/advanceTreeAnnotation.html
+        - text: "Manipulation"
+          href: ggtree/treeManipulation.html
+        - text: "Utilities"
+          href: ggtree/ggtreeUtilities.html
+        - text: "Import"
+          href: ggtree/treeImport.html
+        - text: "-------"
+        - text: "Network Visualization"
+        - text: "Graphs Task View"
+          href: http://cran.r-project.org/web/views/gR.html
+        - text: "POLNET 2016 Tutorials"
+          href: static_dynamic_network_viz_R.html
+        - text: "ggnetwork"
+          href: https://cran.r-project.org/web/packages/ggnetwork/vignettes/ggnetwork.html
+        - text: "ggnet2"
+          href: http://briatte.github.io/ggnet/
+        - text: "-------"
+        - text: Other Viz Tools
+        - text: "ggplotly"
+          href: https://plot.ly/ggplot2/
+        - text: "GGally"
+          href: https://ggobi.github.io/ggally/
