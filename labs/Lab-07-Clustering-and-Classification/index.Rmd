@@ -1,0 +1,32 @@
+---
+title: "Lab 07 -- Clustering and Classification of Microbiome Data"
+author: SISMID 2016 Module 14
+date: "`r date()`"
+output: html_document
+---
+
+
+&nbsp;
+
+---
+
+## Motivation
+
+There are a growing number of microbiome applications
+for which it appears the microbiome is predictive of some 
+host/patient/environment outcome, 
+or improves the predictability of some outcome
+when used in conjunction with additional sample covariate(s).
+
+
+&nbsp;
+
+---
+
+## Goals of this Lab
+
+The goal of this lab is to show some examples
+
+- (1) Unsupervised learning, mainly evaluating the number of clusters in an example dataset, and
+- (2) Supervised learning, training a predictive model based on SVM or Random Forest, and estimate its predictive performance using cross-validation.
+

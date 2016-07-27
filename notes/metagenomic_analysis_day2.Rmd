@@ -1,0 +1,266 @@
+---
+title: "UW Summer Institutes - Introduction to Metagenomic Data Analysis - Day 2"
+output: html_notebook
+---
+
+# Session 4
+
+## Lecture 4: Evolutionary trees in microbiome data analysis 
+
+### Phylogenetic trees (motivation)
+
++ reconstruct evolutionary history from incomplete information
++ robust summary of similarity of related biological sequences (like hclust)
+
+**Q:** has anyone tried applying algorithms like t-SNE or WANDERLUST to microbiome data?
+
+### Phylogenetic trees (nomenclature)
+
++ node: where branches join
++ tips/leaves: inidividual taxa
++ clades: groups of taxa connected at a node
+
+### Phylogenetic trees (structure)
+
++ rotating internal nodes is not meaningful
++ 2^(N-1) possible arrangements
+
+### Using an "outgroup"
+
++ Outgroup rooting: tree has top level root connecting all taxa to "outgroup" via most recent common ancestor (MRCA)
++ Midpoint rooting: tree has top level root only connecting known taxa
+
+### Rooting trees
+
++ rooted trees have one node from which all other nodes descend
++ imply direction corresponding to evolutionary time
+
+### More terminology
+
++ derived character: known taxa
++ ancestral character: inferred ancestor taxa
++ homoplasy: similarity due to parallel evolution, convergent evolution, or secondary loss
+
+### Multiple sequence alignment
+
++ Naive multiple sequence alignment is NP-complete (alignment is confounded with tree-building)
++ Example methods:
+
+    + ClustalW
+    + Muscle
+    + MAFFT
+
++ Won't create meaningful tree from meaningless alignment
+
+### Phylogenetic tree construction methods
+
++ Distance methdos: UPGMA or neighbor-joining (not great methods, not widely used anymore)
++ Character-based (discrete) methods: maximum parsimony, maximum likelihood, Bayesian methods
+
+### Distance methods
+
++ advantages: fast, single "best tree" found
++ disadvantages: assumptions (additive distances, molecular clock), info loss due to data transformation, uninterpretable branch lengths, single "best tree"
+
+### Character-based methods
+
++ methods attempt to map history of gene sequences onto a tree (and decide what tree looks like)
++ models of sequence evolution
++ maximum likelihood: most used at present
+
+### Maximum likelihood
+
++ advantages:
+
+    + based on explicit evolutionary models
+    + permits statistical evaluation
+    + often returns many equally likely trees
+    + usually outperforms other methods
+
++ disadvantages:
+
+    + computational very intensive
+    + often returns many equally likely trees
+
+### Bayesian approach to phylogeny estimation
+
++ Metropolis-Hastings MCMC
++ "BEAST"
++ Holder et al., Nat Rev Genetics 2003
++ ML+bootstrap vs. Bayesian MC^3
+
+**note:** numbers on tree [0-1] represent confidence in branch!
+
+### Tree-based distances
+
++ UniFrac
+
+\  
+
+# Session 5
+
+## Lecture 5: Ecological distance metrics; Principal Coordinates Analysis
+
+### Univariate testing vs. community analysis
+
+- Univ. testing deals w/ hypotheses concerning individual taxa
+- What if we would lke to draw conclusions about community as a whole?
+
+### Useful ideas from modern statistics
+
++ Distances
++ Direct hypotheses based on distances
++ Decomposition
++ Projections
++ Randomization tests, probabilistic simulations
+
+### Typical microbiome analysis
+
++ Data -> Distances -> Statistics
+
+### What is a distance metric?
+
+### Useful distances and similarity indices
+
++ Distance: Euclidean, weighted Euclidean, Hamming/L1, Bray Curtis, UniFrac, Jensen-Shannon (Kullback-Leibler divergence)
++ Similarity: Correlation coef., Matching coef., Jaccard
+
+### Principal coordinate analysis
+
++ vector basis: linearly independent vectors that span the vector space
+
+### PCA vs. PCoA
+
++ PCoA is generalization of PCA in that knowledge of X is not required; all you need to represent points is D, the inter-point distance matrix
+
+### Beta-diversity; ordination analysis
+
++ PCoA to visualy inspect if differences might exist between groups
++ Average w/in group distance as measure of variability
+
+**note:** UniFrac recommended against! mostly reliant on 0s in data (the thing in which you have least confidence); people typically use weighted
+**note:** Bray Curtis meant to be used in context when column sum has a meaning (e.g., data has been rarified)
+
+\  
+
+# Session 6
+
+## Lecture 6: Generalized multivariate analysis of variance
+
+### General strategy for multivariate analysis
+
++ test for differences between predefined groups
+
+### Euclidean MANOVA
+
++ direct extension of univariate ANOVA to multiple variables
++ key: mean within-group squared distance equal to sum of squared distances to the centroid
+
+### Calculating F-statistic from arbitrary distance matrices
+
++ F-stat does not follow Fisher's F-ratio under null; some extra work to get significance
++ Permutation testing (reshuffling of labels) to compute F-statistic under the null
+
+### Post-hoc tests for multi-level factors
+
++ Follow up with post-hoc pairwise tests
++ Multiple comparison correction
+
+### More sophisticated designs
+
++ Two-way MANOVA: extension with all interactions considered
++ Stratification / block design: effect is to be determined within levels of another factor
+
+### More sophisticated regression scenarios
+
++ multivariate regression with arbitrary distance matrix (PERMANOVA)
+
+### Assumptions of PERMANOVA
+
++ balanced sample sizes
++ homoscedasticity
+
+### Empirical robustness of PERMANOVA to heteroscedasticity and unbalanced N
+
++ loss of power with increased sample size
+
+### Univariate approach to heteroscedasticity issues
+
++ generalize Welch t-stat to multivariate data...
+
+\  
+
+# Session 7
+
+## Lecture 7: Machine learning with microbiome data
+
+### Clustering definition
+
++ hierarchical: grouping objects by similarity
++ discrete: assessing membership of objects in one of several closely related groups
++ **how to tell if clustering is meaningful?**
+
+### Linkage types (hierarchical clusting)
+
++ complete: distance from the furthest objects apart
++ average: average distance between objects
++ single: distance from the closest objects apart
+
+### Cophenetic distance
+
++ distance induced by dendrogram
++ may be different from original distance used to construct dendrogram
+
+### In R
+
++ `hclust`
++ `cophenetic`
+
+### Discrete clustering
+
++ K-means clustering
++ PAM (partitioning around medoids)
+
+### In R
+
++ `cluster` and `clusterSim`
++ `pam`
++ `clusGap`
+
+### How to select K?
+
++ measures of how good clusters describe structure of data for varying number of clusters
++ F-statistic: Calinski-Harabasz index
++ Silhouette method
++ Gap statistic
+
+### Supervised learning
+
++ Model selection: find models that are most likely to be accurate (and have other desired properties)
++ Error estimation: estimate how accurate final model will be in future applications
++ Repeated Nested n-Fold Cross Validation (RNCV): model selection + error estimation
+
+### High dimensionality:
+
++ Some methods don't run at all (classical multiple regression)
++ Some methods give bad results (KNN, decision trees)
++ Very slow analysis
++ Expensive/cumbersome clinical application
++ Tend to "overfit"
+
+### Two problems:
+
++ Over-fitting: building a model that is good in original data but fails to generalize well (variance)
++ Under-fitting: building a model that is poor in both original data and fresh data (bias)
+
+### Measures of classification error
+
++ Accuracy: proportion of correct classification
++ AUC
+
+### Comparison of state of the art methods for microbiomic marker + signature discovery
+
++ A comprehensive evaluation of multicategory classifcation methods for microbiomic data (Statnikov et al.)
++ Microbiomic signatures of psoriasis: feasibility and methodology comparison (Statnikov et al.)
+
+**note:** feature selection / filtering... "Markov Blanket" (Alifaris et al., JMLR 2010)

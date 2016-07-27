@@ -1,0 +1,45 @@
+name: "Lab 07"
+output_dir: "."
+output: 
+  html_document: 
+    theme: cosmo
+    fig_caption: yes
+    number_sections: yes
+    toc: yes
+    toc_depth: 2
+    toc_float: true
+navbar:
+  title: "Lab 07"
+  type: inverse
+  left:
+    - text: "home"
+      icon: fa-home
+      href: http://sismid16m14.bot-tak.org/
+    - text: "Questions"
+      icon: fa-question
+      href: Lab07-clustering-classification-Questions.html
+    - text: "Answers"
+      icon: fa-exclamation
+      href: Lab07-clustering-classification-Answers.html
+    - text: "Source"
+      icon: fa-gear
+      href: Lab07-clustering-classification-Answers.Rmd
+    - text: "Further Reading"
+      icon: fa-newspaper-o
+      menu:
+        - text: "Caret Package & Text"
+        - text: "Applied Predictive Modelling"
+          href: http://appliedpredictivemodeling.com
+        - text: "Caret Package Home"
+          href: http://topepo.github.io/caret/modelList.html
+        - text: "Caret Supported Methods"
+          href: http://topepo.github.io/caret/modelList.html
+        - text: "------"
+        - text: "Deeper Statistics Background"
+        - text: "Intro to Stat Learn"
+          href: http://www-bcf.usc.edu/~gareth/ISL/
+        - text: "Elements of Stat Learn"
+          href: http://statweb.stanford.edu/~tibs/ElemStatLearn/
+
+
+
