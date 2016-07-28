@@ -1,0 +1,62 @@
+---
+title: "UW Summer Institutes - Introduction to Metagenomic Data Analysis - Day 3"
+output: html_notebook
+---
+
+# Q&A
+
++ Rule of thumb for normalization?
+
+    + Univariate tests - depends on test / assumptions
+    + Ordination / distances - distances that don't rely on prior normalization (chi squared, JSD)
+    + Clustering / classification - norm that preserves rank (e.g., relative abundance) for non-parametric; smaller sample sizes or preliminary, maybe something like CLR to enable t-test or similar
+    
++ Read depth?
+
+    + Quantification vs. confidence
+
++ Copy number?
+
+    + Some species have multiple copies of 16S...
+
+\  
+
+# Session 8
+
+## Lecture 8: Predicting metagenomic composition from 16S survey data
+
+### How to measure metagenomes?
+
++ Unbiased sample of entire (bacterial) genomic DNA in a specimen rather than just 16S
++ Processing pipelines
+
+    + MG-RAST
+    + SUPER-FOCUS
+    + HUMAnN
+
+### How is metagenome data representation different from 16S rRNA gene sequencing?
+
++ Infer broader range of gene/pathway abundances from just 16S abundances
++ Need to normalize for 16S multiplicity
++ Need to reconstruct ancestry
+
+### Idea: can predict metagenomes from 16S rRNA gene bacterial identification data
+
+### PICRUSt
+
++ Inference of both gene content and metagenome from 16S data
++ Evolution model might have issues; tree construction (stepwise) might introduce bias
++ Relies on reference db (e.g., Greengenes, Silva)
+
+### Analyzing metagenome data
+
++ Common "gene expression" analysis approaches apply
++ Gene set enrichment analysis, etc.
+
+**note:** alternative to PICRUSt: "Piphillin" by Second Genome
+
+\  
+
+# Session 9
+
+## Laboratory 9: SpiecEasi networks tutorial
