@@ -1,0 +1,80 @@
+---
+title: "Lab 03: Mixture Models for Testing Differential Abundance"
+author: SISMID 2016 Module 14
+date: "`r date()`"
+output: 
+  html_document: 
+    fig_caption: yes
+    number_sections: yes
+    toc: yes
+    toc_depth: 2
+    toc_float: true
+---
+
+
+&nbsp;
+
+# Topics
+
+<style type="text/css">
+p { text-align: left; }
+</style>
+
+Expected Time to Completion: 
+
+**30 - 45 minutes**
+
+- DESeq2
+- edgeR / edgeR-robust
+- metagenomeSeq
+
+
+&nbsp;
+
+
+---
+
+# Questions
+
+- Use `closedps` in the [included example dataset](example-data.RData).
+- **Differential Abundance** - Test for taxa/OTUs that are differentially abundant between the `Fast` and the `Control` sample classes. Use `phyloseq::mt`, `DESeq2`, `edgeR`, `edgeR-robust`, and `metagenomeSeq`.
+- **Plot** - Plot your results from the differential abundance testing in an informative way that illustrates the confidence of the test result as well as the taxonomic classification. This plot should be more easily interpretable than a table of values.
+- **Compare** - Compare the results from each method. Which taxa/OTUs were consistently rejected (significant)? Which methods tended to reject more taxa/OTUs? Which method would you prefer to use on your own data?
+- **Bonus** - Combine the results of each test method into a single plot. 
+- **Variance Stabilization** - Time-allowing, explore ordination results (`plot_ordination`) 
+after transforming the count data using DESeq2's
+`getVarianceStabilizedData` and `rlog` functions. 
+
+
+&nbsp;
+
+---
+
+# Hints
+
+- There are lots of package-specific idiosyncracies. I have provided example functions to help you quickly convert phyloseq data into the relevant data format. In addition, phyloseq includes a conversion function for DESeq2.
+- Try to remember to *unload* one package before you switch to the next, to avoid namespace conflicts.
+e.g. `unloadNamespace("metagenomeSeq")`
+- Don't get stuck on plotting. 
+I'm most interested that you are able to successfully run and compare these methods.
+Organize your results in a `data.frame`, and then find a `ggplot2` plot example online.
+- In case I haven't mentioned you can replace the `otu_table` in a phyloseq object
+using `otu_table(physeq) <- x`, 
+where `physeq` is a copy of the phyloseq object you want to modify
+and `x` is the new `otu_table`. 
+This will be very helpful for ordinations
+on the `transformed` count values
+in the *variance stabilization* question.
+
+
+&nbsp;
+
+---
+
+# Bonus
+
+- Try an alternative method that isn't provided (yet) in this lab / tutorial.
+
+
+
+

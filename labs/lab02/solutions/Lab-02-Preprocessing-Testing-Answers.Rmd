@@ -1,0 +1,344 @@
+---
+title: "Lab 02: Quality Control, Preprocessing, and Univariate Testing -- Example Solutions"
+author: SISMID 2016 Module 14
+date: "`r date()`"
+output: 
+  html_document: 
+    fig_caption: yes
+    number_sections: yes
+    toc: yes
+    toc_depth: 2
+    toc_float: true
+---
+
+
+--------------
+
+# Load the data
+
+> Load data from Nature 488, pp. 621-626: `STAT.RData`
+
+```{r}
+load('STAT.RData')
+library(phyloseq)
+```
+
+```{r}
+head(sample_data(phy))
+levels(sample_data(phy)$Treatment)
+```
+
+```{r}
+head(phenotypes)
+phy
+sample_names(phy)[1:5]
+```
+
+The sample names are in different formats: phenotypes are per mouse; phy data are per mouse-location.
+
+&nbsp;
+
+---
+
+# Merge phenotypes
+
+> Merge `phenotypes` variable with the	`phyloseq` data
+
+```{r}
+pheno1 = phenotypes
+pheno2 = phenotypes
+
+rownames(pheno1) = paste('cecal', rownames(pheno1), sep="_")
+rownames(pheno2) = paste('fecal', rownames(pheno2), sep="_")
+pheno = rbind(pheno1, pheno2)
+
+phy2 = merge_phyloseq(phy, sample_data(pheno))
+
+phy
+phy2
+head(sample_data(phy2))
+```
+
+```{r, echo=FALSE}
+## cleanup
+rm(pheno, pheno1, pheno2, phy, phenotypes)
+```
+
+&nbsp;
+
+---
+
+# Estimate richness
+
+> Estimate observed species with Chao1 and Shannon diversity using `estimate_richness()` function
+
+```{r, eval=FALSE}
+?estimate_richness
+```
+
+```{r}
+alpha = estimate_richness(phy2, measures=c("Observed", "Chao1", "Shannon"))
+head(alpha)
+```
+
+```{r}
+plot(ecdf(sample_sums(phy2)))
+```
+
+&nbsp;
+
+---
+
+# Rarefied diversities
+
+> Estimate rarified diversities in #3 averaged over 20 replicates and compare the two estimates
+
+## Let's only keep samples that have at least 3500 observations/reads
+
+```{r}
+phy3 = subset_samples(phy2, sample_sums(phy2)>3500)
+alpha = estimate_richness(phy3, measures=c("Observed", "Chao1", "Shannon"))
+
+```
+
+## Estimate rarefied diversities
+
+```{r}
+alpha.rare = matrix(0, ncol=ncol(alpha), nrow=nrow(alpha))
+for(i in 1:20){
+  alpha.rare= alpha.rare + 
+    estimate_richness(rarefy_even_depth(phy3, sample.size = 3500,
+                                        verbose=F, trimOTUs = F), 
+                      measures=c("Observed", "Chao1", "Shannon"))
+}
+alpha.rare = alpha.rare/20
+```
+
+## Compare the rarefied vs non-rarefied alpha diversity
+
+```{r}
+plot(alpha$Observed, alpha.rare$Observed)
+plot(alpha$Chao1, alpha.rare$Chao1)
+plot(alpha$Shannon, alpha.rare$Shannon)
+```
+
+&nbsp;
+
+---
+
+# Order-level abundances
+
+## Compute order level abundances
+
+> Summarize the data at the order level
+
+```{r}
+order.phy = tax_glom(phy3, taxrank = "Order")
+```
+
+## Normalize the data
+
+> Normalize the data using CLR, relative abundance, and DESeq2
+
+### relative abundance
+
+```{r}
+order.rel = transform_sample_counts(order.phy, function(x) x/sum(x))
+```
+
+### clr
+
+```{r}
+order.clr = transform_sample_counts(order.phy, function(x){y=log(x+1); y/sum(y)})
+```
+
+### DESeq2
+
+```{r}
+library(DESeq2)
+countData = round(as(otu_table(order.phy), "matrix"), digits = 0)
+countData = countData + 1L
+dds <- DESeqDataSetFromMatrix(countData, sample_data(order.phy), design = ~1)
+
+order.deseq = merge_phyloseq(otu_table(counts(estimateSizeFactors(dds), 
+                                              normalized=T), taxa_are_rows = T), 
+                             sample_data(order.phy), 
+                             phy_tree(order.phy), 
+                             tax_table(order.phy))
+```
+
+
+```{r, echo=FALSE}
+## cleanup
+rm(dds, countData)
+```
+
+&nbsp;
+
+---
+
+# Univariate tests
+
+> Compute appropriate univariate tests on normalized data
+
+## Compare location
+
+```{r}
+Location = sample_data(order.rel)$Location
+rel.p = apply(otu_table(order.rel),1, function(x) wilcox.test(c(x)~Location)$p.value)
+clr.p = apply(otu_table(order.clr),1, function(x) t.test(c(x)~Location)$p.value)
+deseq.p = apply(otu_table(order.deseq),1, function(x) t.test(log10(c(x))~Location)$p.value)
+
+univ.location.res = data.frame(taxa = tax_table(order.clr)[,"Order"], rel.p, clr.p, deseq.p)
+```
+
+## do FDR
+
+> Adjust the p-values using False Discovery Rate
+
+```{r}
+univ.location.res$rel.fdr = p.adjust(univ.location.res$rel.p, method="fdr")
+univ.location.res$clr.fdr = p.adjust(univ.location.res$clr.p, method="fdr")
+univ.location.res$deseq.fdr = p.adjust(univ.location.res$deseq.p, method="fdr")
+
+colSums(univ.location.res<0.05)
+univ.location.res
+```
+
+
+## Plot abundances
+
+> Plot the abundances using `plot_heatmap()`, `plot_bar()`, or produce box and whisker plots
+
+### Plot heatmaps
+
+```{r}
+library(ggplot2)
+plot_heatmap(order.rel, taxa.label = "Order", sample.order = "Location")+
+  facet_grid(.~Location, scales = "free_x")
+plot_heatmap(order.clr, taxa.label = "Order", sample.order = "Location")+
+  facet_grid(.~Location, scales = "free_x")
+plot_heatmap(order.deseq, taxa.label = "Order", sample.order = "Location")+
+  facet_grid(.~Location, scales = "free_x")
+```
+
+
+### Plot barplots of all data
+
+```{r}
+plot_bar(order.rel, fill="Location") + 
+  facet_wrap(facets = "Order", ncol=7, nrow=3, scales = "free_y")
+plot_bar(order.clr, fill="Location") + 
+  facet_wrap(facets = "Order", ncol=7, nrow=3, scales = "free_y")
+plot_bar(order.deseq, fill="Location") + 
+  facet_wrap(facets = "Order", ncol=7, nrow=3, scales = "free_y")
+```
+
+### Plot box and whiskers charts
+
+```{r}
+ggplot(psmelt(order.rel), aes(x=Location, y=Abundance)) + 
+  geom_boxplot(aes(fill=Location)) + geom_jitter() + 
+  facet_wrap(facets="Order", ncol=7, nrow=3, scales="free_y")
+
+ggplot(psmelt(order.clr), aes(x=Location, y=Abundance)) + 
+  geom_boxplot(aes(fill=Location)) + geom_jitter() + 
+  facet_wrap(facets="Order", ncol=7, nrow=3, scales="free_y")
+
+ggplot(psmelt(order.deseq), aes(x=Location, y=Abundance)) + 
+  geom_boxplot(aes(fill=Location)) + geom_jitter() + 
+  facet_wrap(facets="Order", ncol=7, nrow=3, scales="free_y") + scale_y_log10()
+```
+
+
+&nbsp;
+
+---
+
+# Testing in fecal samples
+
+## Subset to only fecal samples
+
+> Subset the order level data to only fecal samples
+
+```{r}
+fecal.rel = subset_samples(order.rel, Location = "fecal")
+```
+
+## Filter low abundance taxa
+
+> Filter out taxa with low abundance (mean abundance < 0.1%)
+
+```{r}
+fecal.rel.subs = subset_taxa(fecal.rel, rowMeans(otu_table(fecal.rel))> 0.001)
+```
+
+## Fecal samples vs Treatment
+
+> Perform univariate analysis of the fecal subset with respect to the Treatment variable
+
+```{r}
+Treatment = sample_data(fecal.rel.subs)$Treatment
+
+fecal.res = data.frame(taxa = tax_table(fecal.rel.subs)[,"Order"], 
+                               fecal.p = apply(otu_table(fecal.rel.subs),1, 
+                                               function(x) kruskal.test(c(x)~Treatment)$p.value))
+fecal.res$fecal.fdr = p.adjust(fecal.res$fecal.p, method="fdr")
+
+ggplot(psmelt(fecal.rel.subs), aes(x=Treatment, y=Abundance)) + 
+  geom_boxplot(aes(fill=Treatment)) + geom_jitter() + 
+  facet_wrap(facets="Order", ncol=4, nrow=2, scales="free_y")
+```
+
+## Fecal samples vs BMD
+
+```{r}
+fecal.deseq = subset_samples(order.deseq, Location = "fecal")
+
+pheno.res = data.frame(taxa = tax_table(fecal.deseq)[,"Order"], 
+                       BMD.p = apply(otu_table(fecal.deseq),1, 
+                                       function(x) cor.test(log(c(x)), sample_data(fecal.deseq)$BMD)$p.value))
+pheno.res$BMD.fdr = p.adjust(pheno.res$BMD.p, method="fdr")
+
+pheno.res$pFAT.p = apply(otu_table(fecal.deseq),1, 
+                         function(x) cor.test(log(c(x)), sample_data(fecal.deseq)$pFat)$p.value)
+
+pheno.res$pFAT.fdr = p.adjust(pheno.res$pFAT.p, method="fdr")
+
+
+```
+
+### Compute global FDR
+
+```{r}
+gFDR = with(pheno.res, 
+            matrix(p.adjust(c(BMD.p, pFAT.p), method="fdr"), 
+                   ncol=2, nrow=nrow(pheno.res), byrow=F))
+gFDR
+```
+
+
+### Plot phenotypic variables vs. "the most significant" result
+
+```{r}
+ggplot(subset(psmelt(fecal.deseq), Order=="Enterobacteriales"), aes(x=BMD, y=Abundance)) +
+  geom_point() + scale_y_log10()
+ggplot(subset(psmelt(fecal.deseq), Order=="Enterobacteriales"), aes(x=pFat, y=Abundance)) + 
+  geom_point() + scale_y_log10()
+
+```
+
+
+### Plot phenotypic variables vs. Treatment
+
+```{r}
+ggplot(sample_data(fecal.deseq), aes(x=Treatment, y=BMD)) + 
+  geom_boxplot(aes(fill=Treatment))+geom_jitter()
+ggplot(sample_data(fecal.deseq), aes(x=Treatment, y=pFat)) + 
+  geom_boxplot(aes(fill=Treatment))+geom_jitter()
+
+```
+
+
+
+

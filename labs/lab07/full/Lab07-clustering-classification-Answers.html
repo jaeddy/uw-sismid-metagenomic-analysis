@@ -1,0 +1,816 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+
+<meta charset="utf-8">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="pandoc" />
+
+
+<meta name="author" content="SISMID 2016 Module 14" />
+
+
+<title>Lab 07 – Clustering and Classification of Microbiome Data – Example Solutions</title>
+
+<script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
+<script src="site_libs/jqueryui-1.11.4/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/cosmo.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<link href="site_libs/font-awesome-4.5.0/css/font-awesome.min.css" rel="stylesheet" />
+
+<style type="text/css">code{white-space: pre;}</style>
+<link rel="stylesheet"
+      href="site_libs/highlight/default.css"
+      type="text/css" />
+<script src="site_libs/highlight/highlight.js"></script>
+<style type="text/css">
+  pre:not([class]) {
+    background-color: white;
+  }
+</style>
+<script type="text/javascript">
+if (window.hljs && document.readyState && document.readyState === "complete") {
+   window.setTimeout(function() {
+      hljs.initHighlighting();
+   }, 0);
+}
+</script>
+
+
+
+<style type="text/css">
+h1 {
+  font-size: 34px;
+}
+h1.title {
+  font-size: 38px;
+}
+h2 {
+  font-size: 30px;
+}
+h3 {
+  font-size: 24px;
+}
+h4 {
+  font-size: 18px;
+}
+h5 {
+  font-size: 16px;
+}
+h6 {
+  font-size: 12px;
+}
+.table th:not([align]) {
+  text-align: left;
+}
+</style>
+
+
+</head>
+
+<body>
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+code {
+  color: inherit;
+  background-color: rgba(0, 0, 0, 0.04);
+}
+img {
+  max-width:100%;
+  height: auto;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+</style>
+
+<style type="text/css">
+/* padding for bootstrap navbar */
+body {
+  padding-top: 51px;
+  padding-bottom: 40px;
+}
+/* offset scroll position for anchor links (for fixed navbar)  */
+.section h1 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+
+.section h2 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h3 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h4 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h5 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h6 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+</style>
+
+<script>
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark it active
+  menuAnchor.parent().addClass('active');
+
+  // if it's got a parent navbar menu mark it active as well
+  menuAnchor.closest('li.dropdown').addClass('active');
+});
+</script>
+
+
+<div class="container-fluid main-container">
+
+<!-- tabsets -->
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+</script>
+
+<!-- code folding -->
+
+
+
+
+<script>
+$(document).ready(function ()  {
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\/?&!#<>]/g, '').replace(/\s/g, '_').toLowerCase();
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.9em;
+  padding-left: 5px;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row-fluid">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
+
+
+
+
+<div class="navbar navbar-inverse  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">Lab 07</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="http://sismid16m14.bot-tak.org/">
+    <span class="fa fa-home"></span>
+     
+    home
+  </a>
+</li>
+<li>
+  <a href="Lab07-clustering-classification-Questions.html">
+    <span class="fa fa-question"></span>
+     
+    Questions
+  </a>
+</li>
+<li>
+  <a href="Lab07-clustering-classification-Answers.html">
+    <span class="fa fa-exclamation"></span>
+     
+    Answers
+  </a>
+</li>
+<li>
+  <a href="Lab07-clustering-classification-Answers.Rmd">
+    <span class="fa fa-gear"></span>
+     
+    Source
+  </a>
+</li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+    <span class="fa fa-newspaper-o"></span>
+     
+    Further Reading
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li class="dropdown-header">Caret Package &amp; Text</li>
+    <li>
+      <a href="http://appliedpredictivemodeling.com">Applied Predictive Modelling</a>
+    </li>
+    <li>
+      <a href="http://topepo.github.io/caret/modelList.html">Caret Package Home</a>
+    </li>
+    <li>
+      <a href="http://topepo.github.io/caret/modelList.html">Caret Supported Methods</a>
+    </li>
+    <li class="divider"></li>
+    <li class="dropdown-header">Deeper Statistics Background</li>
+    <li>
+      <a href="http://www-bcf.usc.edu/~gareth/ISL/">Intro to Stat Learn</a>
+    </li>
+    <li>
+      <a href="http://statweb.stanford.edu/~tibs/ElemStatLearn/">Elements of Stat Learn</a>
+    </li>
+  </ul>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div class="fluid-row" id="header">
+
+
+
+<h1 class="title toc-ignore">Lab 07 – Clustering and Classification of Microbiome Data – Example Solutions</h1>
+<h4 class="author"><em>SISMID 2016 Module 14</em></h4>
+<h4 class="date"><em>Tue Jul 26 14:59:05 2016</em></h4>
+
+</div>
+
+
+<p> </p>
+<hr />
+<div id="packages" class="section level1">
+<h1><span class="header-section-number">1</span> Packages</h1>
+<div id="check-packages" class="section level2">
+<h2><span class="header-section-number">1.1</span> Check packages</h2>
+<pre class="r"><code>packageVersion(&quot;clusterSim&quot;)</code></pre>
+<pre><code>## [1] &#39;0.44.2&#39;</code></pre>
+<pre class="r"><code>packageVersion(&quot;cluster&quot;)</code></pre>
+<pre><code>## [1] &#39;2.0.4&#39;</code></pre>
+<pre class="r"><code>packageVersion(&quot;ROCR&quot;)</code></pre>
+<pre><code>## [1] &#39;1.0.7&#39;</code></pre>
+<pre class="r"><code>packageVersion(&quot;phyloseq&quot;)</code></pre>
+<pre><code>## [1] &#39;1.16.2&#39;</code></pre>
+<pre class="r"><code>packageVersion(&quot;ggplot2&quot;)</code></pre>
+<pre><code>## [1] &#39;2.1.0&#39;</code></pre>
+</div>
+<div id="load-packages-data" class="section level2">
+<h2><span class="header-section-number">1.2</span> Load packages, data</h2>
+<pre class="r"><code>library(phyloseq)
+load(&quot;STAT.RData&quot;)</code></pre>
+<p> </p>
+<hr />
+</div>
+</div>
+<div id="normalize-the-data" class="section level1">
+<h1><span class="header-section-number">2</span> Normalize the data</h1>
+<pre class="r"><code>normalizeSample = function(x){ x / sum(x)}
+physeq.norm = transformSampleCounts(phy, normalizeSample)</code></pre>
+</div>
+<div id="compute-distance" class="section level1">
+<h1><span class="header-section-number">3</span> Compute Distance</h1>
+<div id="compute-jensen-shannon-divergence-distance" class="section level2">
+<h2><span class="header-section-number">3.1</span> Compute Jensen-Shannon divergence distance</h2>
+<pre class="r"><code>jsd.dist = phyloseq::distance(physeq.norm, &quot;jsd&quot;)</code></pre>
+</div>
+</div>
+<div id="hierarchical-clustering" class="section level1">
+<h1><span class="header-section-number">4</span> Hierarchical clustering</h1>
+<pre class="r"><code>csin &lt;- hclust(jsd.dist, method = &quot;single&quot;)
+ccom &lt;- hclust(jsd.dist, method = &quot;complete&quot;)
+caver &lt;- hclust(jsd.dist, method = &quot;aver&quot;)</code></pre>
+<div id="plot-dendrograms" class="section level2">
+<h2><span class="header-section-number">4.1</span> plot dendrograms</h2>
+<pre class="r"><code>par(mfrow=c(1,3))
+plot(csin, hang=-1, main=&quot;single linkage&quot;)
+plot(ccom, hang=-1, main=&quot;complete linkage&quot;)
+plot(caver, hang=-1, main=&quot;average linkage&quot;)</code></pre>
+<p><img src="Lab07-clustering-classification-Answers_files/figure-html/unnamed-chunk-6-1.png" width="672" /></p>
+</div>
+<div id="compute-clusters-from-hierarchical-cluster" class="section level2">
+<h2><span class="header-section-number">4.2</span> Compute clusters from hierarchical cluster</h2>
+<pre class="r"><code># Example of how to select best discrete clusters from the dendrograms
+par(mfrow=c(1,1))
+plot(ccom, hang = -1)
+dcl = rect.hclust(ccom, 3)</code></pre>
+<p><img src="Lab07-clustering-classification-Answers_files/figure-html/unnamed-chunk-7-1.png" width="672" /></p>
+</div>
+<div id="compute-co-phenetic-distance" class="section level2">
+<h2><span class="header-section-number">4.3</span> compute co-phenetic distance</h2>
+<pre class="r"><code>par(mfrow=c(1,3))
+plot(jsd.dist, cophenetic(csin), asp = 1, main=&quot;single linkage&quot;)
+abline(0,1, col=&#39;red&#39;, lty=&#39;dashed&#39;)
+plot(jsd.dist, cophenetic(ccom), asp = 1, main=&quot;complete linkage&quot;)
+abline(0,1, col=&#39;red&#39;, lty=&#39;dashed&#39;)
+plot(jsd.dist, cophenetic(caver), asp = 1, main=&quot;average linkage&quot;)
+abline(0,1, col=&#39;red&#39;, lty=&#39;dashed&#39;)</code></pre>
+<p><img src="Lab07-clustering-classification-Answers_files/figure-html/unnamed-chunk-8-1.png" width="672" /></p>
+<p>Cophenetic correlation is maximized by average linkage</p>
+<pre class="r"><code>cor(jsd.dist, cophenetic(csin))</code></pre>
+<pre><code>## [1] 0.659062</code></pre>
+<pre class="r"><code>cor(jsd.dist, cophenetic(ccom))</code></pre>
+<pre><code>## [1] 0.7639895</code></pre>
+<pre class="r"><code>cor(jsd.dist, cophenetic(caver))</code></pre>
+<pre><code>## [1] 0.8549823</code></pre>
+</div>
+</div>
+<div id="discrete-clustering" class="section level1">
+<h1><span class="header-section-number">5</span> Discrete clustering</h1>
+<pre class="r"><code>## Discrete clustering
+library(cluster)
+library(clusterSim)
+
+cc = pam(jsd.dist, k=2, cluster.only=T)
+
+table(sample_data(phy)$Treatment, cc)</code></pre>
+<pre><code>##     cc
+##       1  2
+##   C  10 10
+##   P  10  9
+##   T  10  9
+##   V  10 10
+##   VP  9  9</code></pre>
+<pre class="r"><code>table(sample_data(phy)$Location, cc)</code></pre>
+<pre><code>##        cc
+##          1  2
+##   cecal 49  1
+##   fecal  0 46</code></pre>
+<pre class="r"><code>cluster.tr = table(sample_data(phy)$Treatment, cc)
+chisq.test(cluster.tr)</code></pre>
+<pre><code>## 
+##  Pearson&#39;s Chi-squared test
+## 
+## data:  cluster.tr
+## X-squared = 0.063624, df = 4, p-value = 0.9995</code></pre>
+<pre class="r"><code>cluster.loc = table(sample_data(phy)$Location, cc)
+cluster.loc</code></pre>
+<pre><code>##        cc
+##          1  2
+##   cecal 49  1
+##   fecal  0 46</code></pre>
+<pre class="r"><code>chisq.test(cluster.loc)</code></pre>
+<pre><code>## 
+##  Pearson&#39;s Chi-squared test with Yates&#39; continuity correction
+## 
+## data:  cluster.loc
+## X-squared = 88.198, df = 1, p-value &lt; 2.2e-16</code></pre>
+</div>
+<div id="gap-statistic-cluster-goodness" class="section level1">
+<h1><span class="header-section-number">6</span> Gap Statistic (cluster goodness)</h1>
+<pre class="r"><code>pam1 &lt;- function(x,k) list(cluster = pam(as.dist(x),k, cluster.only=TRUE))
+gsPam1 &lt;- clusGap(as.matrix(jsd.dist), FUN = pam1, K.max = 20, B = 100)</code></pre>
+<pre><code>## Clustering k = 1,2,..., K.max (= 20): .. done
+## Bootstrapping, b = 1,2,..., B (= 100)  [one &quot;.&quot; per sample]:
+## .................................................. 50 
+## .................................................. 100</code></pre>
+<pre class="r"><code>par(mfrow=c(1,1))
+plot(gsPam1)</code></pre>
+<p><img src="Lab07-clustering-classification-Answers_files/figure-html/unnamed-chunk-11-1.png" width="672" /></p>
+<p>a slightly nicer way to visualize Gap statistic analysis</p>
+<pre class="r"><code>library(ggplot2)
+m = ggplot(as.data.frame(gsPam1$Tab), aes(y=gap, x=1:20))
+m + theme_bw() + 
+  geom_line() + 
+  geom_errorbar(aes(ymin=gap-2*SE.sim, ymax=gap+2*SE.sim), colour=&quot;red&quot;) + 
+  geom_errorbar(aes(ymin=gap-SE.sim,
+                    ymax=gap + SE.sim), 
+                colour=&quot;black&quot;, linetype=&quot;dashed&quot;) + 
+  ylab(expression(paste(&quot;Ga&quot;,p[k]))) + 
+  geom_point() + 
+  xlab(&quot;Number of clusters (k)&quot;) + 
+  xlim(0,11)</code></pre>
+<pre><code>## Warning: Removed 9 rows containing missing values (geom_path).</code></pre>
+<pre><code>## Warning: Removed 9 rows containing missing values (geom_errorbar).
+
+## Warning: Removed 9 rows containing missing values (geom_errorbar).</code></pre>
+<pre><code>## Warning: Removed 9 rows containing missing values (geom_point).</code></pre>
+<p><img src="Lab07-clustering-classification-Answers_files/figure-html/unnamed-chunk-12-1.png" width="672" /></p>
+</div>
+<div id="classification-error-estimation" class="section level1">
+<h1><span class="header-section-number">7</span> Classification error estimation</h1>
+<pre class="r"><code>source(&#39;CV_protocols.R&#39;)</code></pre>
+<pre class="r"><code>phylum = tax_glom(physeq.norm, taxrank = &quot;Phylum&quot;)</code></pre>
+<div id="predict-location" class="section level2">
+<h2><span class="header-section-number">7.1</span> Predict Location</h2>
+<pre class="r"><code>response = sample_data(phylum)$Location
+predictors = as.matrix(t(otu_table(phylum)))</code></pre>
+</div>
+<div id="predict-using-random-forest" class="section level2">
+<h2><span class="header-section-number">7.2</span> predict using Random Forest</h2>
+<pre class="r"><code>Location.rf.100repCV = 
+  sapply(1:100, 
+         function(i) 
+           mean(rf.kfoldAUC(predictors, 
+                            response, 
+                            k=6)$aucs))</code></pre>
+</div>
+<div id="predict-using-support-vetor-machines" class="section level2">
+<h2><span class="header-section-number">7.3</span> predict using Support Vetor Machines</h2>
+<pre class="r"><code>Location.svm.100repCV = 
+  sapply(1:100, 
+         function(i) 
+           mean(svm.kfoldAUC(predictors, 
+                             response, 
+                             k=6)$aucs))
+
+print(&#39;Location&#39;)</code></pre>
+<pre><code>## [1] &quot;Location&quot;</code></pre>
+<p>Compare</p>
+<pre class="r"><code>rbind(RandomForest = c(mean(Location.rf.100repCV), 
+                       quantile(Location.rf.100repCV, 
+                                prob=c(0.05, 1))),
+      SVM = c(mean(Location.svm.100repCV), 
+              quantile(Location.svm.100repCV, prob=c(0.05, 1))))</code></pre>
+<pre><code>##                               5% 100%
+## RandomForest 0.9998690 0.9998698    1
+## SVM          0.9950537 0.9895792    1</code></pre>
+</div>
+<div id="predict-antibiotic-vs.control-in-fecal-samples" class="section level2">
+<h2><span class="header-section-number">7.4</span> Predict Antibiotic vs. Control in fecal samples</h2>
+<pre class="r"><code>predictors = as.matrix(t(otu_table(
+  subset_samples(phylum,
+                 Location==&#39;fecal&#39;))))
+resp = sample_data(
+  subset_samples(phylum, 
+                 Location==&#39;fecal&#39;))$Treatment
+response = rep(&#39;Atibiotic&#39;, length(resp))
+response[resp == &#39;C&#39;] = &#39;Control&#39;
+response = factor(response)
+response</code></pre>
+<pre><code>##  [1] Control   Control   Control   Control   Control   Control   Control  
+##  [8] Control   Control   Control   Atibiotic Atibiotic Atibiotic Atibiotic
+## [15] Atibiotic Atibiotic Atibiotic Atibiotic Atibiotic Atibiotic Atibiotic
+## [22] Atibiotic Atibiotic Atibiotic Atibiotic Atibiotic Atibiotic Atibiotic
+## [29] Atibiotic Atibiotic Atibiotic Atibiotic Atibiotic Atibiotic Atibiotic
+## [36] Atibiotic Atibiotic Atibiotic Atibiotic Atibiotic Atibiotic Atibiotic
+## [43] Atibiotic Atibiotic Atibiotic Atibiotic
+## Levels: Atibiotic Control</code></pre>
+<pre class="r"><code>Treatmentf.rf.100repCV = 
+  sapply(1:100, 
+         function(i) 
+           mean(rf.kfoldAUC(predictors, 
+                            response, k=6)$aucs))
+Treatmentf.svm.100repCV = 
+  sapply(1:100, 
+         function(i) 
+           mean(svm.kfoldAUC(predictors, 
+                             response, k=6)$aucs))
+
+print(&#39;Treatment in fecal&#39;)</code></pre>
+<pre><code>## [1] &quot;Treatment in fecal&quot;</code></pre>
+<pre class="r"><code>rbind(RandomForest = c(mean(Treatmentf.rf.100repCV), 
+                       quantile(Treatmentf.rf.100repCV, 
+                                prob=c(0.05, 1))),
+      SVM = c(mean(Treatmentf.svm.100repCV), 
+              quantile(Treatmentf.svm.100repCV, 
+                       prob=c(0.05, 1))))</code></pre>
+<pre><code>##                               5%      100%
+## RandomForest 0.7343056 0.6527778 0.8611111
+## SVM          0.8234722 0.7222222 0.9583333</code></pre>
+</div>
+<div id="predict-antibiotic-vs.control-in-cecal-samples" class="section level2">
+<h2><span class="header-section-number">7.5</span> Predict Antibiotic vs. Control in cecal samples</h2>
+<pre class="r"><code>predictors = as.matrix(t(
+  otu_table(subset_samples(phylum, 
+                           Location==&#39;cecal&#39;))))
+resp = sample_data(
+  subset_samples(phylum, 
+                 Location==&#39;cecal&#39;))$Treatment
+response = rep(&#39;Atibiotic&#39;, length(resp))
+response[resp == &#39;C&#39;] = &#39;Control&#39;
+response = factor(response)
+
+Treatmentc.rf.100repCV = 
+  sapply(1:100, 
+         function(i) 
+           mean(rf.kfoldAUC(predictors, 
+                            response, k=6)$aucs))
+Treatmentc.svm.100repCV = 
+  sapply(1:100, 
+         function(i) 
+           mean(svm.kfoldAUC(predictors, 
+                             response, k=6)$aucs))
+
+print(&#39;Treatment in cecal&#39;)</code></pre>
+<pre><code>## [1] &quot;Treatment in cecal&quot;</code></pre>
+<pre class="r"><code>rbind(RandomForests = c(mean(Treatmentc.rf.100repCV), 
+                        quantile(Treatmentc.rf.100repCV, 
+                                 prob=c(0.05, 1))),
+      SVM = c(mean(Treatmentc.svm.100repCV), 
+              quantile(Treatmentc.svm.100repCV, 
+                      prob=c(0.05, 1))))</code></pre>
+<pre><code>##                                5%      100%
+## RandomForests 0.7075893 0.6028770 0.8293651
+## SVM           0.8253373 0.7378968 0.9146825</code></pre>
+</div>
+</div>
+<div id="caret-package" class="section level1">
+<h1><span class="header-section-number">8</span> caret Package</h1>
+<p>caret: Classification and Regression Tools</p>
+<p>Alternatively, you can run these exact same methods and CV testing design using the caret package, which provides a convenient unified interface to a large number of statistical/machine learning methods in R.</p>
+<div id="load-caret" class="section level2">
+<h2><span class="header-section-number">8.1</span> Load caret</h2>
+<pre class="r"><code>library(&quot;caret&quot;)
+# install.packages(&quot;pROC&quot;)
+library(&quot;pROC&quot;)</code></pre>
+</div>
+<div id="parallel" class="section level2">
+<h2><span class="header-section-number">8.2</span> Parallel?</h2>
+<p>caret supports a system-agnostic parallelization framework called “foreach”. You may have this already installed and available. If so, you can change the following <code>runInParallel</code> parameter to <code>TRUE</code>.</p>
+<p>If you do set it to <code>TRUE</code>, one of the foreach helper pacakges, “doParallel”, will be loaded and the parallel “backend” will be defined. The code you use for your analysis does not change, other than perhaps the <code>allowParallel</code> option below.</p>
+<pre class="r"><code>runInParallel = FALSE
+if(runInParallel){
+  library(&quot;doParallel&quot;)
+  registerDoParallel(cl = parallel::detectCores() - 1L)
+}</code></pre>
+</div>
+<div id="define-cross-validation" class="section level2">
+<h2><span class="header-section-number">8.3</span> Define cross-validation</h2>
+<p>Define how you want cross-validation to be performed. This is separate from the step where you define the input data and method to use.</p>
+<pre class="r"><code>fitControl &lt;- trainControl(## 10-fold CV
+                           method = &quot;repeatedcv&quot;,
+                           number = 10,
+                           classProbs = TRUE,
+                           ## repeated ten times
+                           repeats = 10,
+                           summaryFunction = twoClassSummary,
+                           allowParallel = runInParallel)</code></pre>
+</div>
+<div id="execute-cv-training-on-svm" class="section level2">
+<h2><span class="header-section-number">8.4</span> Execute CV training on SVM</h2>
+<pre class="r"><code># Run Training. SVM
+fit1svmL &lt;- caret::train(x = predictors,
+                         y = as.character(response), 
+                         method = &quot;svmLinear&quot;,
+                         metric = &quot;ROC&quot;,
+                         trControl = fitControl,
+                         verbose = FALSE)</code></pre>
+</div>
+<div id="execute-cv-training-on-rf" class="section level2">
+<h2><span class="header-section-number">8.5</span> Execute CV training on RF</h2>
+<pre class="r"><code># Run Training. SVM
+fit1rf &lt;- caret::train(x = predictors,
+                       y = response, 
+                       metric = &quot;ROC&quot;,
+                       method = &quot;rf&quot;,
+                       trControl = fitControl,
+                       verbose = FALSE)</code></pre>
+</div>
+<div id="evaluate-compare-results" class="section level2">
+<h2><span class="header-section-number">8.6</span> Evaluate, Compare Results</h2>
+<pre class="r"><code># SVM results summary
+fit1svmL</code></pre>
+<pre><code>## Support Vector Machines with Linear Kernel 
+## 
+## 50 samples
+##  7 predictor
+##  2 classes: &#39;Atibiotic&#39;, &#39;Control&#39; 
+## 
+## No pre-processing
+## Resampling: Cross-Validated (10 fold, repeated 10 times) 
+## Summary of sample sizes: 45, 45, 45, 45, 45, 45, ... 
+## Resampling results:
+## 
+##   ROC  Sens  Spec
+##   0.6  0.98  0   
+## 
+## Tuning parameter &#39;C&#39; was held constant at a value of 1
+## </code></pre>
+<pre class="r"><code># RF results summary
+fit1rf</code></pre>
+<pre><code>## Random Forest 
+## 
+## 50 samples
+##  7 predictor
+##  2 classes: &#39;Atibiotic&#39;, &#39;Control&#39; 
+## 
+## No pre-processing
+## Resampling: Cross-Validated (10 fold, repeated 10 times) 
+## Summary of sample sizes: 45, 45, 45, 45, 45, 45, ... 
+## Resampling results across tuning parameters:
+## 
+##   mtry  ROC      Sens    Spec
+##   2     0.69375  0.9375  0.25
+##   4     0.71875  0.8975  0.40
+##   7     0.73500  0.8825  0.46
+## 
+## ROC was used to select the optimal model using  the largest value.
+## The final value used for the model was mtry = 7.</code></pre>
+</div>
+</div>
+<div id="addressing-class-imbalance-caret" class="section level1">
+<h1><span class="header-section-number">9</span> Addressing class imbalance (caret)</h1>
+<p>caret package supports methods to address class imbalance within the CV framework via the <code>sampling</code> parameter in the <code>trainControl()</code> definition function.</p>
+<p>See <a href="http://topepo.github.io/caret/sampling.html">the sampling help page</a> for more details.</p>
+<pre class="r"><code>fitControl2 &lt;- trainControl(
+  ## 5-fold CV
+  method = &quot;repeatedcv&quot;,
+  number = 5,
+  classProbs = TRUE,
+  ## repeated ten times
+  repeats = 10,
+  summaryFunction = twoClassSummary,
+  allowParallel = runInParallel,
+  sampling = &quot;up&quot;)</code></pre>
+<div id="re-run-cv-training-using-both-methods" class="section level2">
+<h2><span class="header-section-number">9.1</span> Re-run CV training using both methods</h2>
+<pre class="r"><code># Run Training. SVM
+fit2svmL &lt;- caret::train(x = predictors,
+                         y = response, 
+                         method = &quot;svmLinear&quot;,
+                         metric = &quot;ROC&quot;,
+                         trControl = fitControl2,
+                         verbose = FALSE)
+# RF
+fit2rf &lt;- caret::train(x = predictors,
+                       y = response, 
+                       method = &quot;rf&quot;,
+                       metric = &quot;ROC&quot;,
+                       trControl = fitControl2,
+                       verbose = FALSE)</code></pre>
+<p>Compare (again)</p>
+<pre class="r"><code>fit2svmL</code></pre>
+<pre><code>## Support Vector Machines with Linear Kernel 
+## 
+## 50 samples
+##  7 predictor
+##  2 classes: &#39;Atibiotic&#39;, &#39;Control&#39; 
+## 
+## No pre-processing
+## Resampling: Cross-Validated (5 fold, repeated 10 times) 
+## Summary of sample sizes: 40, 40, 40, 40, 40, 40, ... 
+## Addtional sampling using up-sampling
+## 
+## Resampling results:
+## 
+##   ROC    Sens   Spec
+##   0.715  0.755  0.64
+## 
+## Tuning parameter &#39;C&#39; was held constant at a value of 1
+## </code></pre>
+<pre class="r"><code>fit2rf</code></pre>
+<pre><code>## Random Forest 
+## 
+## 50 samples
+##  7 predictor
+##  2 classes: &#39;Atibiotic&#39;, &#39;Control&#39; 
+## 
+## No pre-processing
+## Resampling: Cross-Validated (5 fold, repeated 10 times) 
+## Summary of sample sizes: 40, 40, 40, 40, 40, 40, ... 
+## Addtional sampling using up-sampling
+## 
+## Resampling results across tuning parameters:
+## 
+##   mtry  ROC       Sens  Spec
+##   2     0.661875  0.89  0.43
+##   4     0.681875  0.87  0.47
+##   7     0.675000  0.84  0.48
+## 
+## ROC was used to select the optimal model using  the largest value.
+## The final value used for the model was mtry = 4.</code></pre>
+</div>
+</div>
+
+
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+$(document).ready(function () {
+  $('tr.header').parent('thead').parent('table').addClass('table table-condensed');
+});
+
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

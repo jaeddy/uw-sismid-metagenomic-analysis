@@ -1,0 +1,412 @@
+---
+title: "Lab 07 -- Clustering and Classification of Microbiome Data -- Example Solutions"
+author: SISMID 2016 Module 14
+date: "`r date()`"
+output: 
+  html_document: 
+    fig_caption: yes
+    number_sections: yes
+    toc: yes
+    toc_depth: 2
+    toc_float: true
+---
+
+
+
+&nbsp;
+
+---
+
+# Packages
+
+## Check packages
+
+```{r}
+packageVersion("clusterSim")
+packageVersion("cluster")
+packageVersion("ROCR")
+packageVersion("phyloseq")
+packageVersion("ggplot2")
+```
+
+
+## Load packages, data
+
+```{r}
+library(phyloseq)
+load("STAT.RData")
+```
+
+
+&nbsp;
+
+---
+
+# Normalize the data
+
+```{r}
+normalizeSample = function(x){ x / sum(x)}
+physeq.norm = transformSampleCounts(phy, normalizeSample)
+```
+
+
+# Compute Distance
+
+## Compute Jensen-Shannon divergence distance
+
+```{r}
+jsd.dist = phyloseq::distance(physeq.norm, "jsd")
+```
+
+
+
+# Hierarchical clustering
+
+```{r}
+csin <- hclust(jsd.dist, method = "single")
+ccom <- hclust(jsd.dist, method = "complete")
+caver <- hclust(jsd.dist, method = "aver")
+```
+
+
+## plot dendrograms
+
+```{r}
+par(mfrow=c(1,3))
+plot(csin, hang=-1, main="single linkage")
+plot(ccom, hang=-1, main="complete linkage")
+plot(caver, hang=-1, main="average linkage")
+```
+
+## Compute clusters from hierarchical cluster
+
+```{r}
+# Example of how to select best discrete clusters from the dendrograms
+par(mfrow=c(1,1))
+plot(ccom, hang = -1)
+dcl = rect.hclust(ccom, 3)
+```
+
+
+## compute co-phenetic distance 
+
+```{r}
+par(mfrow=c(1,3))
+plot(jsd.dist, cophenetic(csin), asp = 1, main="single linkage")
+abline(0,1, col='red', lty='dashed')
+plot(jsd.dist, cophenetic(ccom), asp = 1, main="complete linkage")
+abline(0,1, col='red', lty='dashed')
+plot(jsd.dist, cophenetic(caver), asp = 1, main="average linkage")
+abline(0,1, col='red', lty='dashed')
+```
+
+Cophenetic correlation is maximized by average linkage
+
+```{r}
+cor(jsd.dist, cophenetic(csin))
+cor(jsd.dist, cophenetic(ccom))
+cor(jsd.dist, cophenetic(caver))
+```
+
+
+# Discrete clustering
+
+```{r}
+## Discrete clustering
+library(cluster)
+library(clusterSim)
+
+cc = pam(jsd.dist, k=2, cluster.only=T)
+
+table(sample_data(phy)$Treatment, cc)
+table(sample_data(phy)$Location, cc)
+
+cluster.tr = table(sample_data(phy)$Treatment, cc)
+chisq.test(cluster.tr)
+
+cluster.loc = table(sample_data(phy)$Location, cc)
+cluster.loc
+chisq.test(cluster.loc)
+```
+
+
+# Gap Statistic (cluster goodness)
+
+```{r}
+pam1 <- function(x,k) list(cluster = pam(as.dist(x),k, cluster.only=TRUE))
+gsPam1 <- clusGap(as.matrix(jsd.dist), FUN = pam1, K.max = 20, B = 100)
+par(mfrow=c(1,1))
+plot(gsPam1)
+```
+
+a slightly nicer way to visualize Gap statistic analysis
+
+```{r}
+library(ggplot2)
+m = ggplot(as.data.frame(gsPam1$Tab), aes(y=gap, x=1:20))
+m + theme_bw() + 
+  geom_line() + 
+  geom_errorbar(aes(ymin=gap-2*SE.sim, ymax=gap+2*SE.sim), colour="red") + 
+  geom_errorbar(aes(ymin=gap-SE.sim,
+                    ymax=gap + SE.sim), 
+                colour="black", linetype="dashed") + 
+  ylab(expression(paste("Ga",p[k]))) + 
+  geom_point() + 
+  xlab("Number of clusters (k)") + 
+  xlim(0,11)
+```
+
+
+
+# Classification error estimation
+
+```{r}
+source('CV_protocols.R')
+```
+
+```{r}
+phylum = tax_glom(physeq.norm, taxrank = "Phylum")
+```
+
+## Predict Location
+
+```{r}
+response = sample_data(phylum)$Location
+predictors = as.matrix(t(otu_table(phylum)))
+```
+
+
+## predict using Random Forest
+
+```{r}
+Location.rf.100repCV = 
+  sapply(1:100, 
+         function(i) 
+           mean(rf.kfoldAUC(predictors, 
+                            response, 
+                            k=6)$aucs))
+```
+
+
+## predict using Support Vetor Machines
+
+```{r}
+Location.svm.100repCV = 
+  sapply(1:100, 
+         function(i) 
+           mean(svm.kfoldAUC(predictors, 
+                             response, 
+                             k=6)$aucs))
+
+print('Location')
+```
+
+Compare
+
+```{r}
+rbind(RandomForest = c(mean(Location.rf.100repCV), 
+                       quantile(Location.rf.100repCV, 
+                                prob=c(0.05, 1))),
+      SVM = c(mean(Location.svm.100repCV), 
+              quantile(Location.svm.100repCV, prob=c(0.05, 1))))
+```
+
+
+## Predict Antibiotic vs. Control in fecal samples
+
+```{r}
+predictors = as.matrix(t(otu_table(
+  subset_samples(phylum,
+                 Location=='fecal'))))
+resp = sample_data(
+  subset_samples(phylum, 
+                 Location=='fecal'))$Treatment
+response = rep('Atibiotic', length(resp))
+response[resp == 'C'] = 'Control'
+response = factor(response)
+response
+
+Treatmentf.rf.100repCV = 
+  sapply(1:100, 
+         function(i) 
+           mean(rf.kfoldAUC(predictors, 
+                            response, k=6)$aucs))
+Treatmentf.svm.100repCV = 
+  sapply(1:100, 
+         function(i) 
+           mean(svm.kfoldAUC(predictors, 
+                             response, k=6)$aucs))
+
+print('Treatment in fecal')
+rbind(RandomForest = c(mean(Treatmentf.rf.100repCV), 
+                       quantile(Treatmentf.rf.100repCV, 
+                                prob=c(0.05, 1))),
+      SVM = c(mean(Treatmentf.svm.100repCV), 
+              quantile(Treatmentf.svm.100repCV, 
+                       prob=c(0.05, 1))))
+```
+
+
+## Predict Antibiotic vs. Control in cecal samples
+
+```{r}
+predictors = as.matrix(t(
+  otu_table(subset_samples(phylum, 
+                           Location=='cecal'))))
+resp = sample_data(
+  subset_samples(phylum, 
+                 Location=='cecal'))$Treatment
+response = rep('Atibiotic', length(resp))
+response[resp == 'C'] = 'Control'
+response = factor(response)
+
+Treatmentc.rf.100repCV = 
+  sapply(1:100, 
+         function(i) 
+           mean(rf.kfoldAUC(predictors, 
+                            response, k=6)$aucs))
+Treatmentc.svm.100repCV = 
+  sapply(1:100, 
+         function(i) 
+           mean(svm.kfoldAUC(predictors, 
+                             response, k=6)$aucs))
+
+print('Treatment in cecal')
+rbind(RandomForests = c(mean(Treatmentc.rf.100repCV), 
+                        quantile(Treatmentc.rf.100repCV, 
+                                 prob=c(0.05, 1))),
+      SVM = c(mean(Treatmentc.svm.100repCV), 
+              quantile(Treatmentc.svm.100repCV, 
+                      prob=c(0.05, 1))))
+```
+
+
+
+# caret Package
+
+caret: Classification and Regression Tools
+
+Alternatively, you can run these exact same methods and CV testing design using the caret package, which provides a convenient unified interface to a large number of statistical/machine learning methods in R.
+
+## Load caret
+
+```{r}
+library("caret")
+# install.packages("pROC")
+library("pROC")
+```
+
+## Parallel?
+
+caret supports a system-agnostic parallelization framework called "foreach". You may have this already installed and available. If so, you can change the following `runInParallel` parameter to `TRUE`.
+
+If you do set it to `TRUE`, one of the foreach helper pacakges, "doParallel", will be loaded and the parallel "backend" will be defined. The code you use for your analysis does not change, other than perhaps the `allowParallel` option below.
+
+```{r}
+runInParallel = FALSE
+if(runInParallel){
+  library("doParallel")
+  registerDoParallel(cl = parallel::detectCores() - 1L)
+}
+```
+
+## Define cross-validation
+
+Define how you want cross-validation to be performed.
+This is separate from the step where you define 
+the input data and method to use.
+
+```{r}
+fitControl <- trainControl(## 10-fold CV
+                           method = "repeatedcv",
+                           number = 10,
+                           classProbs = TRUE,
+                           ## repeated ten times
+                           repeats = 10,
+                           summaryFunction = twoClassSummary,
+                           allowParallel = runInParallel)
+```
+
+## Execute CV training on SVM
+
+```{r}
+# Run Training. SVM
+fit1svmL <- caret::train(x = predictors,
+                         y = as.character(response), 
+                         method = "svmLinear",
+                         metric = "ROC",
+                         trControl = fitControl,
+                         verbose = FALSE)
+```
+
+## Execute CV training on RF
+
+```{r}
+# Run Training. SVM
+fit1rf <- caret::train(x = predictors,
+                       y = response, 
+                       metric = "ROC",
+                       method = "rf",
+                       trControl = fitControl,
+                       verbose = FALSE)
+```
+
+## Evaluate, Compare Results
+
+```{r}
+# SVM results summary
+fit1svmL
+# RF results summary
+fit1rf
+```
+
+
+# Addressing class imbalance (caret)
+
+caret package supports methods to address class imbalance within the CV framework via the `sampling` parameter in the `trainControl()` definition function. 
+
+See [the sampling help page](http://topepo.github.io/caret/sampling.html) for more details.
+
+
+```{r}
+fitControl2 <- trainControl(
+  ## 5-fold CV
+  method = "repeatedcv",
+  number = 5,
+  classProbs = TRUE,
+  ## repeated ten times
+  repeats = 10,
+  summaryFunction = twoClassSummary,
+  allowParallel = runInParallel,
+  sampling = "up")
+```
+
+
+## Re-run CV training using both methods
+
+```{r}
+# Run Training. SVM
+fit2svmL <- caret::train(x = predictors,
+                         y = response, 
+                         method = "svmLinear",
+                         metric = "ROC",
+                         trControl = fitControl2,
+                         verbose = FALSE)
+# RF
+fit2rf <- caret::train(x = predictors,
+                       y = response, 
+                       method = "rf",
+                       metric = "ROC",
+                       trControl = fitControl2,
+                       verbose = FALSE)
+```
+
+Compare (again)
+
+```{r}
+fit2svmL
+fit2rf
+```
+
+
+

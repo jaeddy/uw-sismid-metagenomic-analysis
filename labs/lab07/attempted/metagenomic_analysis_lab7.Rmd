@@ -1,0 +1,238 @@
+---
+title: "UW Summer Institutes - Introduction to Metagenomic Data Analysis - Lab 7"
+output: html_notebook
+---
+
+# Setup
+
+```{r load_packages}
+library(phyloseq)
+library(vegan)
+library(ade4)
+
+library(ggplot2)
+library(ggthemes)
+library(stringr)
+library(tidyr)
+library(dplyr)
+```
+
+\  
+
+1. Load the image for Nature 488, pp. 621-626 dataset.
+
+```{r load_data}
+load("../data/STAT.rdata")
+```
+
+\  
+
+2. Use `distance()` function to compute JSD distance of the normalized microbiome
+data.
+
+```{r dist_jsd}
+dist_jsd <- phyloseq::distance(phy, method = distanceMethodList$JSD)
+str(dist_jsd)
+```
+
+3. Compute hierarchical clustering using Single, Average, and Complete linkage.
+
+```{r hclust_single, fig.height=6}
+plot(hclust(dist_jsd, "single"))
+```
+
+```{r hclust_average, fig.height=6}
+hclust(dist_jsd, "average") %>% 
+    plot()
+```
+
+```{r hclust_complete, fig.height=6}
+hclust(dist_jsd, "complete") %>% 
+    plot()
+```
+
+
+4. Plot the dendrograms from **3**.
+
+
+5. Use `rect.hclust` function to produce best discrete clusters from the dendrograms.
+
+```{r rect.hclust_single, fig.height=6}
+hclust_single = hclust(dist_jsd, "single")
+plot(hclust_single)
+rect.hclust(hclust_single, k = 3)
+```
+
+
+```{r rect.hclust_average, fig.height=6}
+hclust_average = hclust(dist_jsd, "average")
+plot(hclust_average)
+rect.hclust(hclust_average, k = 3)
+```
+
+```{r rect.hclust_complete, fig.height=6}
+hclust_complete = hclust(dist_jsd, "complete")
+plot(hclust_complete)
+rect.hclust(hclust_complete, k = 3)
+```
+
+6. Compute and plot cophenetic distance against the JSD distances computed in **2**
+for each of the hierarchical clusterings in **3**.
+
+```{r cophenetic_single}
+plot(dist_jsd, cophenetic(hclust_single))
+```
+
+```{r cophenetic_average}
+plot(dist_jsd, cophenetic(hclust_average))
+```
+
+```{r cophenetic_complete}
+plot(dist_jsd, cophenetic(hclust_complete))
+```
+
+7. How well do the cophenetic distances represent the original distances? Compute
+correlations.
+
+
+8. Use Partitioning around Medoids, `pam`, to cluster the JSD distances into two clusters.
+
+```{r pam_jsd}
+pam_jsd <- cluster::pam(dist_jsd, 2)
+str(pam_jsd)
+# plot(pam_jsd)
+```
+
+9. Test for association of the clusters with the Treatment and Location and
+variables.
+
+```{r}
+table(sample_data(phy)$Treatment, pam_jsd$clustering)
+```
+
+```{r}
+table(sample_data(phy)$Location, pam_jsd$clustering)
+```
+
+```{r}
+library(clusterSim)
+
+cluster.tr = table(sample_data(phy)$Treatment, pam_jsd$clustering)
+chisq.test(cluster.tr)
+```
+
+```{r}
+cluster.loc = table(sample_data(phy)$Location, pam_jsd$clustering)
+chisq.test(cluster.loc)
+```
+
+
+10. Compute the gap statistic plot to determine the optimal number of clusters for
+these data.
+
+```{r}
+pam1 <- function(x,k) list(cluster = pam(as.dist(x),k, cluster.only=TRUE))
+gsPam1 <- clusGap(as.matrix(dist_jsd), FUN = pam1, K.max = 20, B = 100)
+```
+
+```{r}
+par(mfrow=c(1,1))
+plot(gsPam1)
+```
+
+```{r}
+gsPam1$Tab %>% 
+    as.data.frame() %>% 
+    ggplot(aes(x = 1:20, y = gap)) +
+    geom_line() +
+    geom_errorbar(aes(ymin = gap - 2*SE.sim, ymax = gap + 2*SE.sim), 
+                  colour = "red") +
+    geom_errorbar(aes(ymin = gap - SE.sim, ymax = gap + SE.sim), 
+                  colour = "black", linetype = "dashed")
+```
+
+
+11. Install and load the following packages: "randomForest", "kernlab", "ROCR".
+
+
+12. Use the provided 6-fold cross validation functions
+(`svm.kfoldAUC` and `rf.kfoldAUC`)
+to estimate prediction accuracy in 100 repetitions using Phylum level data for:
+
+A. Location;
+B. Antibiotic vs. Control within fecal samples;
+C. Antibiotic vs. Control within cecal samples.
+
+Alternatively, use the "caret" package to accomplish the same.
+
+```{r}
+source("../labs/Lab-07-Clustering-and-Classification/CV_protocols.R")
+```
+
+
+```{r phy_phy}
+phy_phy <- tax_glom(phy, taxrank = "Phylum")
+```
+
+```{r}
+runInParallel = TRUE
+if(runInParallel){
+  library("doParallel")
+  registerDoParallel(cl = parallel::detectCores() - 1L)
+}
+
+```
+
+```{r}
+preds <- subset_samples(phy_phy, Location == 'cecal') %>% 
+    otu_table() %>% 
+    t() %>% 
+    as.matrix()
+
+resp <- subset_samples(phy_phy, Location == 'cecal') %>% 
+    sample_data() %>% 
+    .[["Treatment"]] %>% 
+    str_replace_all("^(?!C).*$", "Antibiotic") %>% 
+    str_replace_all("^C", "Control")
+resp
+```
+
+```{r loc_svm}
+sample_df <- data.frame(sample_data(phy_phy))
+head(sample_df)
+```
+
+```{r}
+fitControl <- trainControl(## 10-fold CV
+                           method = "repeatedcv",
+                           number = 10,
+                           classProbs = TRUE,
+                           ## repeated ten times
+                           repeats = 10,
+                           summaryFunction = twoClassSummary,
+                           allowParallel = runInParallel)
+
+```
+
+```{r}
+fit1svmL <- caret::train(x = as.matrix(t(otu_table(phy_phy))),
+                         y = sample_df$Location, 
+                         method = "svmLinear",
+                         metric = "ROC",
+                         trControl = fitControl,
+                         verbose = FALSE)
+
+```
+
+```{r}
+fit1rf <- caret::train(x = as.matrix(t(otu_table(phy_phy))),
+                       y = sample_df$Location, 
+                       metric = "ROC",
+                       method = "rf",
+                       trControl = fitControl,
+                       verbose = FALSE)
+
+```
+
+
+13. Report mean, and the upper 95% confidence interval for AUC.

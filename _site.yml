@@ -12,12 +12,24 @@ navbar:
   title: "UW SISMID"
   type: inverse
   left:
-    - text: "home"
+    - text: "Home"
       icon: fa-home
       href: http://sismid16m14.bot-tak.org/
     - text: "Labs"
       icon: fa-question
-      href: Lab07-clustering-classification-Questions.html
+      menu:
+        - text: "Lab 1"
+          href: labs/lab01/solutions/Lab-01-DADA2-phyloseq-Answers.html
+        - text: "Lab 2"
+          href: labs/lab02/solutions/Lab-02-Preprocessing-Testing-Answers.html
+        - text: "Lab 3"
+          href: labs/lab03/solutions/Lab-03-mixture-models-Answers.html
+        - text: "Lab 4"
+          href: labs/lab04/solutions/Lab-04-Trees-Networks-Answers.html
+        - text: "Lab 5"
+          href: labs/lab05/solutions/Lab-05-Distances-PCoA-Answers.html
+        - text: "Lab 7"
+          href: labs/lab07/solutions/Lab07-clustering-classification-Answers.html
     - text: "Handouts"
       icon: fa-exclamation
       href: Lab07-clustering-classification-Answers.html

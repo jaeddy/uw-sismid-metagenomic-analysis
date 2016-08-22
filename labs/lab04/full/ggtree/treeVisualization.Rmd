@@ -1,0 +1,298 @@
+---
+title: "Tree Visualization"
+author: "\\
+
+	Guangchuang Yu (<guangchuangyu@gmail.com>) and Tommy Tsan-Yuk Lam (<ttylam@hku.hk>)\\
+
+        School of Public Health, The University of Hong Kong"
+date: "`r Sys.Date()`"
+bibliography: ggtree.bib
+csl: nature.csl
+output: 
+  html_document:
+    toc: true
+  pdf_document:
+    toc: true
+vignette: >
+  %\VignetteIndexEntry{02 Tree Visualization}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\usepackage[utf8]{inputenc}
+---
+
+```{r style, echo=FALSE, results="asis", message=FALSE}
+knitr::opts_chunk$set(tidy = FALSE,
+		   message = FALSE)
+```
+
+
+```{r echo=FALSE, results="hide", message=FALSE}
+library("ape")
+library("ggplot2")
+library("ggtree")
+```
+
+
+To view a phylogenetic tree, we first need to parse the tree file into `R`. The `ggtree` package supports many file formats including output files of commonly used software packages in evolutionary biology. For more details, plase refer to the [Tree Data Import](treeImport.html) vignette.
+
+```{r}
+library("ggtree")
+nwk <- system.file("extdata", "sample.nwk", package="ggtree")
+tree <- read.tree(nwk)
+```
+
+# Viewing a phylogenetic tree with `ggtree`
+
+The `ggtree` package extends _`ggplot2`_ package to support viewing phylogenetic tree.
+It implements _`geom_tree`_ layer for displaying phylogenetic tree, as shown below:
+
+
+```{r fig.width=3, fig.height=3, fig.align="center"}
+ggplot(tree, aes(x, y)) + geom_tree() + theme_tree()
+```
+
+The function, _`ggtree`_, was implemented as a short cut to visualize a tree, and it works exactly the same as shown above.
+
+_`ggtree`_ takes all the advantages of _`ggplot2`_. For example, we can change the color, size and type of the lines as we do with _`ggplot2`_.
+```{r fig.width=3, fig.height=3, fig.align="center"}
+ggtree(tree, color="firebrick", size=1, linetype="dotted")
+```
+
+By default, the tree is viewed in ladderize form, user can set the parameter _`ladderize = FALSE`_ to disable it.
+```{r fig.width=3, fig.height=3, fig.align="center"}
+ggtree(tree, ladderize=FALSE)
+```
+
+The _`branch.length`_ is used to scale the edge, user can set the parameter _`branch.length = "none"`_ to only view the tree topology (cladogram) or other numerical variable to scale the tree (e.g. _dN/dS_, see also in [Tree Annotation](treeAnnotation.html) vignette).
+
+```{r fig.width=3, fig.height=3, fig.align="center"}
+ggtree(tree, branch.length="none")
+```
+
+# Layout
+
+Currently, _`ggtree`_ supports several layouts, including:
+
++ `rectangular` (by default)
++ `slanted`
++ `circular`
++ `fan`
+
+for `Phylogram` (by default) and `Cladogram` if user explicitly setting `branch.length='none'`.
+`ggtree` also supports `unrooted` layout.
+
+
+## Phylogram
+
+__`rectangular`__
+
+```{r fig.height=4, fig.width=4, fig.align="center"}
+ggtree(tree) + ggtitle("(Phylogram) rectangular layout")
+```
+
+__`slanted`__
+
+```{r fig.height=4, fig.width=4, fig.align="center"}
+ggtree(tree, layout="slanted") + ggtitle("(Phylogram) slanted layout")
+```
+
+__`circular`__
+
+```{r fig.height=5, fig.width=5, fig.align="center"}
+ggtree(tree, layout="circular") + ggtitle("(Phylogram) circular layout")
+```	
+
+__`fan`__
+
+```{r fig.height=5, fig.width=5, fig.align="center"}
+ggtree(tree, layout="fan", open.angle=180) + ggtitle("(Phylogram) circular layout")
+```	
+
+
+## Cladogram
+
+__`rectangular`__
+
+```{r fig.height=4, fig.width=4, fig.align="center"}
+ggtree(tree, branch.length='none') + ggtitle("(Cladogram) rectangular layout")
+```
+
+__`slanted`__
+
+```{r fig.height=4, fig.width=4, fig.align="center"}
+ggtree(tree, layout="slanted", branch.length='none') + ggtitle("(Cladogram) slanted layout")
+```
+
+__`circular`__
+
+```{r fig.height=5, fig.width=5, fig.align="center"}
+ggtree(tree, layout="circular", branch.length="none") + ggtitle("(Cladogram) circular layout")
+```
+
+__`fan`__
+
+```{r fig.height=5, fig.width=5, fig.align="center"}
+ggtree(tree, layout="fan", open.angle=180, branch.length="none") + ggtitle("(Cladogram) circular layout")
+```	
+
+
+## Unrooted
+
+Unrooted layout was implemented by the _`equal-angle algorithm`_ that described in _Inferring Phylogenies_[@felsenstein_inferring_2003 pp.578-580].
+
+```{r fig.height=4, fig.width=4, fig.align="center"}
+ggtree(tree, layout="unrooted") + ggtitle("unrooted layout")
+```
+
+## Time-scaled tree
+
+A phylogenetic tree can be scaled by time (time-scaled tree) by specifying the parameter, `mrsd` (most recent sampling date).
+
+```{r fig.width=9, fig.height=9, fig.align="center"}
+tree2d <- read.beast(system.file("extdata", "twoD.tree", package="ggtree"))
+ggtree(tree2d, mrsd = "2014-05-01") + theme_tree2()
+```
+
+## Two dimensional tree
+
+`ggtree` implemented two dimensional tree. It accepts parameter _`yscale`_ to scale the y-axis based on the selected tree attribute. The attribute should be numerical variable. If it is *character*/*category* variable, user should provides a name vector of mapping the variable to numeric by passing it to parameter _`yscale_mapping`_.
+
+
+```{r fig.width=9, fig.height=4, fig.align="center"}
+ggtree(tree2d, mrsd = "2014-05-01",
+       yscale="NGS", yscale_mapping=c(N2=2, N3=3, N4=4, N5=5, N6=6, N7=7)) +
+           theme_classic() + theme(axis.line.x=element_line(), axis.line.y=element_line()) +
+               theme(panel.grid.major.x=element_line(color="grey20", linetype="dotted", size=.3),
+                     panel.grid.major.y=element_blank()) +
+                         scale_y_continuous(labels=paste0("N", 2:7))
+```	
+
+In this example, the figure demonstrates the quantity of __*y*__ increase along the trunk. User can highlight the trunk with different line size or color using the functions described in [Tree Manipulation](treeManipulation.html) vignette.
+
+
+# Displaying tree scale (evolution distance)
+
+To show tree scale, user can use `geom_treescale()` layer.
+
+```{r fig.width=4, fig.height=4, fig.align="center"}
+ggtree(tree) + geom_treescale()
+```
+
+`geom_treescale()` supports the following parameters:
+
++ `x` and `y` for tree scale position
++ `width` for the length of the tree scale
++ `fontsize` for the size of the text
++ `linesize` for the size of the line
++ `offset` for relative position of the line and the text
++ `color` for color of the tree scale
+
+
+```{r fig.width=4, fig.height=4, fig.align="center"}
+ggtree(tree)+geom_treescale(x=0, y=12, width=6, color='red')
+```
+
+```{r fig.width=4, fig.height=4, fig.align="center"}
+ggtree(tree)+geom_treescale(fontsize=8, linesize=2, offset=-1)
+```
+
+
+We can also use `theme_tree2()` to display the tree scale by adding `x axis`.
+
+```{r fig.width=3, fig.height=3, fig.align="center"}
+ggtree(tree) + theme_tree2()
+```
+
+Tree scale is not restricted to evolution distance, `ggtree` can re-scale the tree with other numerical variable. More details can be found in the [Tree Annotation](treeAnnotation.html) vignette.
+
+
+# Displaying nodes/tips
+
+Showing all the internal nodes and tips in the tree can be done by adding a layer of points using _`geom_nodepoint`_,  _`geom_tippoint`_ or _`geom_point`_.
+
+```{r fig.width=3, fig.height=3, fig.align="center"}
+ggtree(tree)+geom_point(aes(shape=isTip, color=isTip), size=3)
+```
+ 
+```{r fig.width=3, fig.height=3, fig.align="center"}
+p <- ggtree(tree) + geom_nodepoint(color="#b5e521", alpha=1/4, size=10)
+p + geom_tippoint(color="#FDAC4F", shape=8, size=3)
+```
+
+## Displaying labels
+
+Users can use _`geom_text`_ to display the node (if available) and tip labels simultaneously or `geom_tiplab` to only display tip labels:
+
+```{r fig.width=3, fig.height=3, warning=FALSE, fig.align="center"}
+p + geom_tiplab(size=3, color="purple")
+```
+
+For _`circular`_ and _`unrooted`_ layout, `ggtree` supports rotating node labels according to the angles of the branches.
+
+```{r fig.width=6, fig.height=6, warning=FALSE, fig.align="center"}
+ggtree(tree, layout="circular") + geom_tiplab(aes(angle=angle), color='blue')
+```
+
+To make it more readable for human eye, `ggtree` provides a `geom_tiplab2` for `circular` layout (see post [1](https://groups.google.com/forum/?utm_medium=email&utm_source=footer#!topic/bioc-ggtree/o35PV3iHO-0) and [2](https://groups.google.com/forum/#!topic/bioc-ggtree/p42R5l8J-14)).
+
+```{r fig.width=6, fig.height=6, warning=FALSE, fig.align="center"}
+ggtree(tree, layout="circular") + geom_tiplab2(color='blue')
+```
+
+By default, the positions are based on the node positions, we can change them to based on the middle of the branch/edge.
+
+```{r fig.width=4, fig.height=3, warning=FALSE, fig.align="center"}
+p + geom_tiplab(aes(x=branch), size=3, color="purple", vjust=-0.3)
+```
+
+Based on the middle of branch is very useful when annotating transition from parent node to child node.
+
+# update tree view with a new tree
+
+In previous example, we have a _`p`_ object that stored the tree viewing of 13 tips and internal nodes highlighted with specific colored big dots. If users want to apply this pattern (we can imaging a more complex one) to a new tree, you don't need to build the tree step by step. `ggtree` provides an operator, _`%<%`_, for applying the visualization pattern to a new tree.
+
+For example, the pattern in the _`p`_ object will be applied to a new tree with 50 tips as shown below:
+```{r fig.width=3, fig.height=3, fig.align="center"}
+p %<% rtree(50)
+```
+
+Another example can be found in the [Tree Data Import](treeImport.html#rst-file) vignette.
+
+# theme
+
+`theme_tree()` defined a totally blank canvas, while _`theme_tree2()`_ adds phylogenetic distance (via x-axis). These two themes all accept a parameter of _`bgcolor`_ that defined the background color.
+
+```{r fig.width=6, fig.height=3, fig.align="center"}
+multiplot(
+    ggtree(rtree(30), color="red") + theme_tree("steelblue"),
+    ggtree(rtree(20), color="white") + theme_tree("black"),
+    ncol=2)
+```
+
+# Visualize a list of trees
+
+`ggtree` supports `multiPhylo` object and a list of trees can be viewed simultaneously.
+
+```{r fig.width=12, fig.height=4}
+trees <- lapply(c(10, 20, 40), rtree)
+class(trees) <- "multiPhylo"
+ggtree(trees) + facet_wrap(~.id, scale="free") + geom_tiplab()
+```
+
+One hundred bootstrap trees can also be view simultaneously.
+```{r fig.width=20, fig.height=20}
+btrees <- read.tree(system.file("extdata/RAxML", "RAxML_bootstrap.H3", package="ggtree"))
+ggtree(btrees) + facet_wrap(~.id, ncol=10)
+```
+
+Another way to view the bootstrap trees is to merge them together to form a density tree. We can add a layer of the best tree on the top of the density tree.
+
+```{r}
+p <- ggtree(btrees, layout="rectangular",   color="lightblue", alpha=.3)
+
+best_tree <- read.tree(system.file("extdata/RAxML", "RAxML_bipartitionsBranchLabels.H3", package="ggtree"))
+df <- fortify(best_tree, branch.length = 'none')
+p+geom_tree(data=df, color='firebrick')
+```
+
+
+# References

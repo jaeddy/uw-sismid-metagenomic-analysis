@@ -1,0 +1,230 @@
+---
+title: "UW Summer Institutes - Introduction to Metagenomic Data Analysis - Lab 2"
+output: html_notebook
+---
+
+# Getting ready
+
+```{r load_packages, message=FALSE}
+library(dada2); packageVersion("dada2")
+library(phyloseq); packageVersion("phyloseq")
+
+library(stringr); packageVersion("stringr")
+library(ggplot2); packageVersion("ggplot2")
+library(dplyr); packageVersion("dplyr")
+```
+
+## Load data from Nature 488, pp. 621-626: `STAT.RData`
+
+```{r load_data}
+path <- "../data/STAT.rdata"
+load(path)
+phy
+head(phenotypes)
+tail(phenotypes)
+```
+
+```{r inspect_sample_data}
+head(sample_data(phy))
+levels(sample_data(phy)$Treatment)
+```
+
+## Merge `phenotypes` variable with the	`phyloseq` data
+
+```{r pheno}
+unique(sample_names(phy))
+
+pheno1 <- phenotypes
+pheno2 <- phenotypes
+
+rownames(pheno1) <- paste('cecal', rownames(pheno1), sep = "_")
+rownames(pheno2) <- paste('fecal', rownames(pheno2), sep = "_")
+pheno <- rbind(pheno1, pheno2)
+
+head(pheno)
+tail(pheno)
+# phenotypes_fixed <- phenotypes
+# rownames(phenotypes_fixed) <- str_replace_all(rownames(phenotypes), 
+#                                               "C", "cecal_C")
+# rownames(phenotypes_fixed) <- str_replace_all(rownames(phenotypes_fixed), 
+#                                               "C", "cecal_C")
+```
+
+```{r phy2}
+phy2 <- merge_phyloseq(phy, sample_data(pheno))
+phy
+phy2
+head(sample_data(phy2))
+```
+
+## Estimate observed species with Chao1 and Shannon diversity using `estimate_richness()` function
+
+```{r alpha_div}
+alpha_meas <- c("Observed", "Chao1", "Shannon")
+alpha_div <- estimate_richness(phy2, measures = alpha_meas)
+glimpse(alpha_div)
+```
+
+## Subsetting
+
+```{r phy3}
+phy3 <- subset_samples(phy2, sample_sums(phy2) > 3500)
+phy3
+```
+
+```{r alpha_div_sub}
+alpha_div_sub <- estimate_richness(phy3, measures = alpha_meas)
+```
+
+
+## Estimate rarified diversities in #3 averaged over 20 replicates and compare the two estimates
+
+```{r alpha_div_rare}
+set.seed(0)
+alpha_div_rare <- matrix(0, ncol = ncol(alpha_div), nrow = nrow(alpha_div))
+for (i in 1:20) {
+    alpha_div_rare <- alpha_div_rare +
+        estimate_richness(
+            rarefy_even_depth(phy3, sample.size = 3500, 
+                              verbose = F, trimOTUs = F),
+            measures = alpha_meas
+        )
+}
+alpha_div_rare <- alpha_div_rare / 20
+glimpse(alpha_div_rare)
+```
+
+```{r plot_compare}
+plot(alpha_div$Observed, alpha_div_rare$Observed)
+plot(alpha_div$Chao1, alpha_div_rare$Chao1)
+plot(alpha_div$Shannon, alpha_div_rare$Shannon)
+```
+
+
+## Summarize the data at the order level
+
+```{r order_phy}
+order_phy <- tax_glom(phy3, taxrank = "Order")
+glimpse(order_phy)
+```
+
+## Normalize the data using CLR, relative abundance, and DESeq2
+
+```{r order_rel}
+order_rel <- transform_sample_counts(order_phy,
+                                     function(x) x / sum(x))
+```
+
+```{r order_clr}
+order_clr <- transform_sample_counts(order_phy,
+                                     function(x) {
+                                         y = log(x + 1)
+                                         y / sum(y)
+                                     })
+```
+
+```{r order_deseq}
+library(DESeq2)
+countData = round(as(otu_table(order_phy), "matrix"), digits = 0)
+countData = countData + 1L
+dds <- DESeqDataSetFromMatrix(countData, sample_data(order_phy), design = ~1)
+
+order_deseq = merge_phyloseq(otu_table(counts(estimateSizeFactors(dds), 
+                                              normalized=T), taxa_are_rows = T), 
+                             sample_data(order_phy), 
+                             phy_tree(order_phy), 
+                             tax_table(order_phy))
+glimpse(order_deseq)
+```
+
+## Compute appropriate univariate tests on normalized data
+
+```{r univ.location.res}
+Location = sample_data(order_rel)$Location
+rel.p = apply(otu_table(order_rel),1, function(x) wilcox.test(c(x)~Location)$p.value)
+clr.p = apply(otu_table(order_clr),1, function(x) t.test(c(x)~Location)$p.value)
+deseq.p = apply(otu_table(order_deseq),1, function(x) t.test(log10(c(x))~Location)$p.value)
+
+univ.location.res = data.frame(taxa = tax_table(order_clr)[,"Order"], rel.p, clr.p, deseq.p)
+head(univ.location.res)
+```
+
+## Adjust the p-values using False Discovery Rate
+
+```{r do_fdr}
+univ.location.res$rel.fdr = p.adjust(univ.location.res$rel.p, method="fdr")
+univ.location.res$clr.fdr = p.adjust(univ.location.res$clr.p, method="fdr")
+univ.location.res$deseq.fdr = p.adjust(univ.location.res$deseq.p, method="fdr")
+
+colSums(univ.location.res<0.05)
+univ.location.res
+```
+
+## Plot the abundances using `plot_heatmap()`, `plot_bar()`, or produce box and whisker plots
+
+```{r plot_heatmap_rel}
+plot_heatmap(order_rel, taxa.label = "Order", sample.order = "Location")+
+  facet_grid(.~Location, scales = "free_x")
+```
+
+```{r plot_heatmap_clr}
+plot_heatmap(order_clr, taxa.label = "Order", sample.order = "Location")+
+  facet_grid(.~Location, scales = "free_x")
+```
+
+```{r plot_heatmap_deseq}
+plot_heatmap(order_deseq, taxa.label = "Order", sample.order = "Location")+
+  facet_grid(.~Location, scales = "free_x")
+```
+
+```{r plot_barplot_rel, fig.height=6}
+plot_bar(order_rel, fill="Location") + 
+  facet_wrap(facets = "Order", ncol=5, nrow=5, scales = "free_y")
+```
+
+```{r plot_barplot_clr, fig.height=6}
+plot_bar(order_clr, fill="Location") + 
+  facet_wrap(facets = "Order", ncol=5, nrow=5, scales = "free_y")
+```
+
+```{r plot_barplot_deseq, fig.height=6}
+plot_bar(order_deseq, fill="Location") + 
+  facet_wrap(facets = "Order", ncol=5, nrow=5, scales = "free_y")
+```
+
+```{r plot_boxplot_rel, fig.height=6}
+ggplot(psmelt(order_rel), aes(x=Location, y=Abundance)) + 
+  geom_boxplot(aes(fill=Location)) + geom_jitter() + 
+  facet_wrap(facets="Order", ncol=5, nrow=5, scales="free_y")
+```
+
+```{r plot_boxplot_clr, fig.height=6}
+ggplot(psmelt(order_clr), aes(x=Location, y=Abundance)) + 
+  geom_boxplot(aes(fill=Location)) + geom_jitter() + 
+  facet_wrap(facets="Order", ncol=5, nrow=5, scales="free_y")
+```
+
+```{r plot_boxplot_deseq, fig.height=6}
+ggplot(psmelt(order_deseq), aes(x=Location, y=Abundance)) + 
+  geom_boxplot(aes(fill=Location)) + geom_jitter() + 
+  facet_wrap(facets="Order", ncol=5, nrow=5, scales="free_y")
+```
+
+## Subset the order level data to only fecal samples
+
+```{r fecal.rel}
+fecal.rel = subset_samples(order_rel, Location = "fecal")
+```
+
+## Filter out taxa with low abundance (mean abundance < 0.1%)
+
+```{r fecal.fel.subs}
+fecal.rel.subs = subset_taxa(fecal.rel, rowMeans(otu_table(fecal.rel))> 0.001)
+```
+
+## Perform univariate analysis of the fecal subset with respect to the Treatment variable
+
+
+
+
+
