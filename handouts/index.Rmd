@@ -1,0 +1,47 @@
+---
+title: "Handouts"
+author: SISMID 2016 Module 14
+date: "`r date()`"
+output: html_document
+---
+
+### **Lecture 0: Introduction and overview**
+
++ [Slides](2016-SISMID-14-00.pdf)
+
+
+### **Lecture 1: Metagenomics assays, overview of microbiome analysis**
+
++ [Slides](2016-SISMID-14-01.pdf)
+
+### **Lecture 2: Descriptive statistics, normalizations & testing**
+
++ [Slides](2016-SISMID-14-02.pdf)
+
+### **Lecture 3: Mixture models for microbiome data**
+
++ [Slides](2016-SISMID-14-03.pdf)
+
+### **Lecture 4: Evolutionary trees in microbiome data analysis**
+
++ [Slides](2016-SISMID-14-04.pdf)
+
+### **Lecture 5: Ecological distance metrics; Principal Coordinates Analysis**
+
++ [Slides](2016-SISMID-14-05.pdf)
+
+### **Lecture 6: Generalized multivariate analysis of variance**
+
++ [Slides](2016-SISMID-14-06.pdf)
+
+### **Lecture 7: Machine learning with microbiome data**
+
++ [Slides](2016-SISMID-14-07.pdf)
+
+### **Lecture 8: Predicting metagenomic composition from 16S survey data**
+
++ [Slides](2016-SISMID-14-08.pdf)
+
+### **Lecture 9: Networks**
+
++ [Slides](2016-SISMID-14-09.pdf)

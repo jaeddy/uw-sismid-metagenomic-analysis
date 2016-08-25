@@ -5,28 +5,11 @@ date: "`r date()`"
 output: html_document
 ---
 
+This "site" includes course materials from the UW Summer Institute course titled **Introduction to Metagenomic Data Analysis**. From the navigation menu at the top of the screen, you can browse through lab exercises (rendered as HTML from R Markdown reports) and access handouts from individual sessions.
 
-&nbsp;
+Some of the lab solutions were provided as standard R scripts, so I'll eventually convert these to Rmd and add them to the list. Several of the lab HTML pages also included links to external resources and references &mdash; at some point, I'll try to compile these in a more organized way, but for now, I've just included a separate tab for each.
 
----
+I'm not sure how long this page will stay up, but for now, you can access the course schedule and some of the lab materials here:
+[http://sismid16m14.bot-tak.org/](http://sismid16m14.bot-tak.org/).
 
-## Motivation
-
-There are a growing number of microbiome applications
-for which it appears the microbiome is predictive of some 
-host/patient/environment outcome, 
-or improves the predictability of some outcome
-when used in conjunction with additional sample covariate(s).
-
-
-&nbsp;
-
----
-
-## Goals of this Lab
-
-The goal of this lab is to show some examples
-
-- (1) Unsupervised learning, mainly evaluating the number of clusters in an example dataset, and
-- (2) Supervised learning, training a predictive model based on SVM or Random Forest, and estimate its predictive performance using cross-validation.
 

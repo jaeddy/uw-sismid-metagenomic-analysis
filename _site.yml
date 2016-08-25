@@ -9,14 +9,14 @@ output:
     toc_depth: 2
     toc_float: true
 navbar:
-  title: "UW SISMID"
+  title: "UW SISMID 2016 - Module 14"
   type: inverse
   left:
     - text: "Home"
       icon: fa-home
-      href: http://sismid16m14.bot-tak.org/
+      href: index.html
     - text: "Labs"
-      icon: fa-question
+      icon: fa-flask
       menu:
         - text: "Lab 1"
           href: labs/lab01/solutions/Lab-01-DADA2-phyloseq-Answers.html
@@ -31,13 +31,79 @@ navbar:
         - text: "Lab 7"
           href: labs/lab07/solutions/Lab07-clustering-classification-Answers.html
     - text: "Handouts"
-      icon: fa-exclamation
-      href: Lab07-clustering-classification-Answers.html
-    - text: "Source"
-      icon: fa-gear
-      href: Lab07-clustering-classification-Answers.Rmd
-    - text: "Further Reading"
-      icon: fa-newspaper-o
+      icon: fa-file-pdf-o
+      href: handouts/index.html
+    - text: "Lab 1 Reading"
+      icon: fa-info
+      menu:
+        - text: "DADA2 Home Page"
+          href: http://benjjneb.github.io/dada2/
+        - text: "DADA2 Peer-Reviewed Article"
+          href: http://dx.doi.org/10.1038/nmeth.3869
+        - text: "DADA2 Slides"
+          href: http://benjjneb.github.io/dada2/SMBS_DADA2.pdf
+    - text: "Lab 3 Reading"
+      icon: fa-info
+      menu:
+        - text: "Poisson Intuition Example"
+          href: labs/lab03/full/Lab-03-Poisson-shot-noise.html
+        - text: "Waste Not, Want Not"
+          href: http://dx.doi.org/10.1371/journal.pcbi.1003531
+        - text: "DESeq2"
+        - text: "DESeq2 article"
+          href: http://www.biomedcentral.com/content/pdf/gb-2010-11-10-r106.pdf
+        - text: "DESeq2 package"
+          href: http://bioconductor.org/packages/release/bioc/html/DESeq2.html
+        - text: "DESeq original"
+          href: http://www.biomedcentral.com/content/pdf/gb-2010-11-10-r106.pdf
+        - text: "edgeR"
+        - text: "edgeR article"
+          href: http://bioinformatics.oxfordjournals.org/content/26/1/139.short
+        - text: "edgeR-Robust"
+          href: http://nar.oxfordjournals.org/content/early/2014/04/20/nar.gku310.full
+        - text: "edgeR package"
+          href: http://bioconductor.org/packages/release/bioc/html/edgeR.html
+        - text: "metagenomeSeq"
+        - text: "metagenomeSeq article"
+          href: http://www.ncbi.nlm.nih.gov/pmc/articles/PMC4010126/
+        - text: "metagenomeSeq package"
+          href: http://bioconductor.org/packages/release/bioc/html/metagenomeSeq.html
+    - text: "Lab 4 Reading"
+      icon: fa-info
+      menu:
+        - text: "ggtree"
+        - text: "Introduction"
+          href: labs/lab04/full/ggtree/ggtree.html
+        - text: "Visualization"
+          href: labs/lab04/ggtree/treeVisualization.html
+        - text: "Annotation"
+          href: labs/lab04/full/ggtree/treeAnnotation.html
+        - text: "Adv. Annotation"
+          href: labs/lab04/full/ggtree/advanceTreeAnnotation.html
+        - text: "Manipulation"
+          href: labs/lab04/full/ggtree/treeManipulation.html
+        - text: "Utilities"
+          href: labs/lab04/full/ggtree/ggtreeUtilities.html
+        - text: "Import"
+          href: labs/lab04/full/ggtree/treeImport.html
+        - text: "-------"
+        - text: "Network Visualization"
+        - text: "Graphs Task View"
+          href: http://cran.r-project.org/web/views/gR.html
+        - text: "POLNET 2016 Tutorials"
+          href: static_dynamic_network_viz_R.html
+        - text: "ggnetwork"
+          href: https://cran.r-project.org/web/packages/ggnetwork/vignettes/ggnetwork.html
+        - text: "ggnet2"
+          href: http://briatte.github.io/ggnet/
+        - text: "-------"
+        - text: Other Viz Tools
+        - text: "ggplotly"
+          href: https://plot.ly/ggplot2/
+        - text: "GGally"
+          href: https://ggobi.github.io/ggally/
+    - text: "Lab 7 Reading"
+      icon: fa-info
       menu:
         - text: "Caret Package & Text"
         - text: "Applied Predictive Modelling"
